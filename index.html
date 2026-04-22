@@ -3,216 +3,860 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Señas OBS Pro — LSC Colombia</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<title>Señas OBS — Intérprete en vivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09090f;--surf:#111119;--bord:rgba(255,255,255,0.07);--acc:#7c6af7;--grn:#3ecf8e;--text:#f0f0f8;--mut:rgba(240,240,248,0.42);--S:#f5c9a0;--S2:#e8b080;--OT:#b87030;--SH:#2a3a8a;--HR:#2c1a0a;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: rgba(255,255,255,0.08);
+    --accent: #7c6af7;
+    --accent2: #3ecf8e;
+    --text: #f0f0f5;
+    --muted: rgba(240,240,245,0.45);
+    --hand-skin: #f5c9a0;
+    --hand-dark: #d4956a;
+    --hand-shadow: #b87340;
+  }
 
-body.overlay{background:transparent!important;}
-body.overlay .ui-panel, body.overlay header{display:none!important;}
-body.overlay .stage{grid-template-columns:1fr!important;}
-body.overlay .wlabel{font-size:72px!important; text-shadow: 0 4px 15px rgba(0,0,0,0.8);}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.app{display:grid;grid-template-rows:auto 1fr;height:100vh;}
-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--bord);background:var(--surf);}
-.stage{display:grid;grid-template-columns:1fr 300px;height:100%;}
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-.display-area{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0b0b12;position:relative;}
-.canvas-container{width:400px;height:400px;display:flex;align-items:center;justify-content:center;transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);}
-svg{width:100%;height:100%;filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));}
+  /* ─── GRID LAYOUT ─── */
+  .app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+  }
 
-.mode-avatar .canvas-container { transform: scale(1); }
-.mode-hand .canvas-container { transform: scale(1.4) translateY(20px); }
+  /* ─── HEADER ─── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
 
-.wlabel{margin-top:10px;font-size:48px;font-weight:700;letter-spacing:-2px;text-align:center;}
-.mtag{font-size:11px;color:var(--acc);text-transform:uppercase;letter-spacing:2px;margin-bottom:15px;font-weight:700;}
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
 
-.ui-panel{background:var(--surf);border-left:1px solid var(--bord);padding:20px;display:flex;flex-direction:column;gap:15px;}
-.tbox{background:var(--bg);border:1px solid var(--bord);padding:15px;border-radius:10px;font-size:13px;height:150px;overflow-y:auto;color:var(--mut);line-height:1.6;}
-.live{color:var(--grn);font-weight:700;}
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-button{width:100%;padding:12px;border-radius:8px;border:none;background:var(--acc);color:white;font-weight:700;cursor:pointer;transition:0.2s;}
-button.sec{background:rgba(255,255,255,0.05);border:1px solid var(--bord);margin-top:5px;}
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #555;
+    transition: background 0.3s;
+  }
+  .status-dot.active { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  .status-dot.listening { animation: pulse 1s infinite; }
 
-.listening-dot{width:10px;height:10px;background:var(--grn);border-radius:50%;display:inline-block;margin-right:8px;}
-.active-mic .listening-dot{animation:pulse 1s infinite;box-shadow:0 0 10px var(--grn);}
-@keyframes pulse{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ─── MAIN STAGE ─── */
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+  }
+
+  /* ─── SIGN DISPLAY ─── */
+  .sign-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    min-height: 500px;
+  }
+
+  .sign-canvas {
+    width: 280px;
+    height: 280px;
+    position: relative;
+  }
+
+  .word-label {
+    margin-top: 24px;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    text-align: center;
+    color: var(--text);
+    min-height: 64px;
+    transition: opacity 0.2s;
+  }
+
+  .word-label.fade { opacity: 0; }
+
+  .word-label .highlight {
+    color: var(--accent);
+  }
+
+  .sign-mode-label {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ─── FINGERSPELLING GRID ─── */
+  .letter-grid {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 16px;
+    max-width: 320px;
+  }
+
+  .letter-cell {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+
+  .letter-cell.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: scale(1.1);
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  /* ─── CONTROLS ─── */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .btn:hover { background: rgba(255,255,255,0.05); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .btn.primary:hover { background: #6a58e8; }
+  .btn.danger {
+    border-color: rgba(220,80,80,0.4);
+    color: #e05555;
+  }
+  .btn.danger:hover { background: rgba(220,80,80,0.1); }
+
+  /* ─── TRANSCRIPT ─── */
+  .transcript-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    min-height: 120px;
+    max-height: 200px;
+  }
+
+  .transcript-box .current-word {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ─── WORD QUEUE ─── */
+  .word-queue {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 14px 20px;
+  }
+
+  .queue-word {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .queue-word.done {
+    background: rgba(62,207,142,0.1);
+    border-color: rgba(62,207,142,0.3);
+    color: var(--accent2);
+  }
+
+  .queue-word.current {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* ─── SETTINGS ─── */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .setting-row label { color: var(--muted); }
+
+  select, input[type=range] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+  }
+
+  /* ─── OBS OVERLAY MODE ─── */
+  body.overlay-mode {
+    background: transparent !important;
+  }
+
+  body.overlay-mode .app {
+    background: transparent;
+  }
+
+  body.overlay-mode header,
+  body.overlay-mode .sidebar { display: none; }
+
+  body.overlay-mode .stage {
+    grid-template-columns: 1fr;
+  }
+
+  body.overlay-mode .sign-display {
+    background: transparent;
+    min-height: 100vh;
+  }
+
+  body.overlay-mode .word-label {
+    font-size: 72px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+  }
+
+  /* ─── SVG HAND ANIMATIONS ─── */
+  @keyframes handBob {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes handShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+  }
+
+  @keyframes handAppear {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .hand-svg {
+    animation: handAppear 0.3s ease-out, handBob 2s ease-in-out infinite 0.3s;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 12px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .obs-url {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--accent2);
+  }
+
+  /* ─── HAND STYLES ─── */
+  .hand-skin { fill: #f5c9a0; }
+  .hand-mid { fill: #e8b088; }
+  .hand-dark { fill: #d4956a; }
+  .hand-nail { fill: #f0b8a0; }
+  .hand-outline { stroke: #c07040; stroke-width: 1.5; fill: none; }
 </style>
 </head>
 <body>
+<div class="app" id="app">
 
-<div class="app">
   <header>
-    <div style="font-weight:700;">INTÉRPRETE LSC <span style="color:var(--acc)">PRO</span></div>
-    <div id="status"><span class="listening-dot"></span><span id="stxt">Micrófono Apagado</span></div>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L4 6v8h10V6L9 2z" fill="white" opacity="0.9"/>
+          <circle cx="9" cy="10" r="2" fill="white"/>
+        </svg>
+      </div>
+      Señas OBS
+    </div>
+    <div class="header-right">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Detenido</span>
+    </div>
   </header>
 
   <div class="stage">
-    <div class="display-area" id="mainDisplay">
-      <div class="mtag" id="modeTag">SISTEMA LISTO</div>
-      <div class="canvas-container">
-        <svg id="svg" viewBox="0 0 300 360"></svg>
+
+    <!-- MAIN SIGN AREA -->
+    <div class="sign-display">
+      <div class="sign-canvas" id="signCanvas">
+        <svg id="handSvg" viewBox="0 0 200 220" width="280" height="280" style="display:block;"></svg>
       </div>
-      <div class="wlabel" id="wlabel">---</div>
+      <div class="word-label" id="wordLabel"><span class="highlight">Listo</span></div>
+      <div class="sign-mode-label" id="modeLabel">Esperando audio...</div>
+      <div class="letter-grid" id="letterGrid"></div>
     </div>
 
-    <div class="ui-panel">
-      <button id="btnStart" onclick="startRecognition()">Iniciar Micrófono</button>
-      <button id="btnStop" onclick="stopRecognition()" style="display:none; background:#e05050">Detener</button>
-      <button class="sec" onclick="toggleOverlay()">Vista Transparente OBS</button>
-      
-      <p style="font-size:11px; color:var(--mut); margin-top:15px">TRANSCRIPCIÓN</p>
-      <div class="tbox" id="tbox"></div>
-      
-      <div style="font-size:10px; color:var(--mut); margin-top:auto">
-        Modos: Legal, Religioso, Comunitario
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Control</div>
+        <button class="btn primary" id="btnStart" onclick="startListening()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="6"/></svg>
+          Iniciar escucha
+        </button>
+        <button class="btn danger" id="btnStop" onclick="stopListening()" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+          Detener
+        </button>
+        <button class="btn" onclick="testWord()">Probar con palabra</button>
+        <button class="btn" onclick="toggleOverlay()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 5h12"/></svg>
+          Modo overlay OBS
+        </button>
       </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Configuración</div>
+        <div class="setting-row">
+          <label>Idioma</label>
+          <select id="langSelect">
+            <option value="es-CO">Español (LSC)</option>
+            <option value="es-ES">Español (LSE)</option>
+            <option value="en-US">English (ASL)</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>Velocidad</label>
+          <input type="range" id="speedSlider" min="300" max="1500" value="700" step="100" style="width:100px">
+        </div>
+        <div class="setting-row">
+          <label>Tamaño texto</label>
+          <input type="range" id="sizeSlider" min="24" max="96" value="48" step="4" style="width:100px" oninput="document.getElementById('wordLabel').style.fontSize=this.value+'px'">
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Transcripción en vivo</div>
+        <div class="transcript-box" id="transcriptBox">
+          <span style="color:rgba(255,255,255,0.2);font-style:italic;">El audio transcrito aparecerá aquí...</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Cola de palabras</div>
+        <div class="word-queue" id="wordQueue"></div>
+      </div>
+
     </div>
   </div>
+
+  <footer>
+    <span>Funciona como Browser Source en OBS — Sin chrome, fondo transparente</span>
+    <span class="obs-url" id="obsUrl">file://senyas-obs.html?overlay=1</span>
+  </footer>
 </div>
 
 <script>
-const svg = document.getElementById('svg');
-const wlabel = document.getElementById('wlabel');
-const modeTag = document.getElementById('modeTag');
-const mainDisplay = document.getElementById('mainDisplay');
+/* ════════════════════════════════════════════════
+   DICCIONARIO DE SEÑAS — LSC / ASL simplificado
+   Cada entrada tiene una función que dibuja la mano en SVG
+   ════════════════════════════════════════════════ */
 
-/* DICCIONARIO AMPLIADO: LEGAL, RELIGIOSO Y COMÚN */
-const POSES = {
-    // RELIGIOSO
-    'dios': () => avatarPose('happy', 150, 60, true, [0,1,0,0,0]),
-    'jesus': () => avatarPose('happy', 150, 150, false, 'pray'),
-    'iglesia': () => avatarPose('neutral', 150, 140, false, 'roof'),
-    'amen': () => avatarPose('happy', 150, 180, false, 'pray'),
-    
-    // DERECHO / POLÍTICO
-    'derecho': () => avatarPose('neutral', 200, 140, false, 'write'),
-    'peticion': () => avatarPose('neutral', 180, 220, true, 'write'),
-    'concejo': () => avatarPose('neutral', 150, 200, false, 'group'),
-    'bucaramanga': () => avatarPose('happy', 220, 200, true, [0,1,1,0,0]), // Seña representativa
-    'plenaria': () => avatarPose('neutral', 150, 210, true, 'group'),
-    'ley': () => avatarPose('neutral', 200, 150, false, [0,1,1,1,1]),
-    
-    // COMÚN
-    'casa': () => avatarPose('neutral', 150, 140, false, 'roof'),
-    'hola': () => avatarPose('happy', 230, 95, true),
-    'gracias': () => avatarPose('happy', 205, 148, false, [0,1,1,1,0]),
-    'si': () => avatarPose('happy', 228, 215, true),
-    'no': () => avatarPose('neutral', 228, 195, true, [0,1,0,0,0])
+const SIGNS = {
+
+  /* ── NÚMEROS ── */
+  '1': drawOne, '2': drawTwo, '3': drawThree,
+
+  /* ── PALABRAS COMUNES (LSC/ASL) ── */
+  'hola': drawHola,
+  'hello': drawHola,
+  'gracias': drawGracias,
+  'thank': drawGracias,
+  'por': drawPor,
+  'favor': drawFavor,
+  'si': drawSi,
+  'sí': drawSi,
+  'yes': drawSi,
+  'no': drawNo,
+  'amor': drawAmor,
+  'love': drawAmor,
+  'yo': drawYo,
+  'i': drawYo,
+  'me': drawYo,
+  'tú': drawTu,
+  'you': drawTu,
+  'bien': drawBien,
+  'good': drawBien,
+  'mal': drawMal,
+  'bad': drawMal,
+  'agua': drawAgua,
+  'water': drawAgua,
+  'casa': drawCasa,
+  'home': drawCasa,
+  'comer': drawComer,
+  'eat': drawComer,
+  'dormir': drawDormir,
+  'sleep': drawDormir,
+  'ayuda': drawAyuda,
+  'help': drawAyuda,
 };
 
-const ABC = {
-    a:[0,0,0,0,0], b:[0,1,1,1,1], c:[1,1,1,1,1], d:[0,1,0,0,0], e:[0,0,0,0,0],
-    f:[1,1,1,0,0], g:[0,1,0,0,0], h:[0,1,1,0,0], i:[0,0,0,0,1], j:[0,0,0,0,1],
-    k:[1,1,1,0,0], l:[1,1,0,0,0], m:[0,0,0,0,0], n:[0,0,0,0,0], o:[1,1,1,1,1],
-    p:[1,1,1,0,0], q:[0,1,0,0,0], r:[0,1,1,0,0], s:[0,0,0,0,0], t:[0,0,0,0,0],
-    u:[0,1,1,0,0], v:[0,1,1,0,0], w:[0,1,1,1,0], x:[0,1,0,0,0], y:[1,0,0,0,1], z:[0,1,0,0,0]
+/* ════════ FUNCIONES DE DIBUJO DE MANOS ════════ */
+
+function baseHand(extended = [1,1,1,1,1]) {
+  /* Devuelve SVG de una mano base con dedos opcionales extendidos
+     extended[0]=pulgar, [1]=índice, [2]=medio, [3]=anular, [4]=meñique */
+  const palmX=60, palmY=100, palmW=80, palmH=90;
+
+  const fingers = [
+    { x:63, y:95, cx:55, cy:55, name:'pulgar', angle:-25 },
+    { x:80, y:90, cx:80, cy:40, name:'indice', angle:5 },
+    { x:98, y:88, cx:98, cy:32, name:'medio', angle:0 },
+    { x:116,y:90, cx:116,cy:40, name:'anular', angle:-3 },
+    { x:130,y:95, cx:130,cy:52, name:'menique', angle:-8 },
+  ];
+
+  let svg = `<g class="hand-svg">`;
+
+  /* Palma */
+  svg += `<ellipse cx="98" cy="145" rx="42" ry="50" class="hand-skin" stroke="#c07040" stroke-width="1"/>`;
+
+  /* Dedos doblados o extendidos */
+  fingers.forEach((f, i) => {
+    if (extended[i]) {
+      svg += `<rect x="${f.cx-8}" y="${f.cy}" width="16" height="${f.y - f.cy + 10}" rx="8" class="hand-skin" stroke="#c07040" stroke-width="1" transform="rotate(${f.angle},${f.cx},${f.y})"/>`;
+      svg += `<line x1="${f.cx-8}" y1="${f.y-10}" x2="${f.cx+8}" y2="${f.y-10}" stroke="#c07040" stroke-width="0.7" opacity="0.5"/>`;
+    } else {
+      /* dedo doblado: pequeño arco */
+      svg += `<ellipse cx="${f.x}" cy="${f.y+12}" rx="9" ry="7" class="hand-mid" stroke="#c07040" stroke-width="0.8"/>`;
+    }
+  });
+
+  /* Muñeca */
+  svg += `<rect x="75" y="188" width="46" height="28" rx="8" class="hand-skin" stroke="#c07040" stroke-width="1"/>`;
+
+  svg += `</g>`;
+  return svg;
+}
+
+function drawHola() {
+  /* Mano abierta con movimiento de saludo — 5 dedos extendidos */
+  return `<g class="hand-svg" style="animation:handShake 0.8s ease-in-out infinite">
+    ${baseHand([1,1,1,1,1])}
+  </g>`;
+}
+
+function drawGracias() {
+  /* Mano plana tocando mejilla — índice y medio extendidos, rest doblados */
+  return baseHand([0,1,1,0,0]) + `<ellipse cx="145" cy="90" rx="18" ry="18" fill="rgba(245,180,130,0.25)" stroke="#c07040" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <text x="145" y="94" text-anchor="middle" fill="#c07040" font-size="9" font-family="sans-serif" opacity="0.6">mejilla</text>`;
+}
+
+function drawPor() {
+  return baseHand([1,1,0,0,0]);
+}
+
+function drawFavor() {
+  return baseHand([0,1,1,1,0]);
+}
+
+function drawSi() {
+  /* Puño cerrado moviéndose hacia abajo */
+  return `<g class="hand-svg" style="animation: handBob 0.5s ease-in-out infinite">
+    ${baseHand([0,0,0,0,0])}
+    <ellipse cx="98" cy="145" rx="42" ry="50" fill="rgba(124,106,247,0.15)" stroke="rgba(124,106,247,0.4)" stroke-width="1.5" stroke-dasharray="none"/>
+  </g>`;
+}
+
+function drawNo() {
+  /* Índice extendido moviéndose de lado */
+  return `<g class="hand-svg" style="animation: handShake 0.6s ease-in-out infinite">
+    ${baseHand([0,1,0,0,0])}
+  </g>`;
+}
+
+function drawAmor() {
+  /* ILY: pulgar, índice y meñique extendidos */
+  return baseHand([1,1,0,0,1]);
+}
+
+function drawYo() {
+  /* Señalar al pecho: índice extendido */
+  return baseHand([0,1,0,0,0]);
+}
+
+function drawTu() {
+  /* Señalar hacia adelante: índice extendido */
+  return baseHand([0,1,0,0,0]) + `<line x1="80" y1="45" x2="80" y2="18" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#arrowUp)"/>
+  <defs><marker id="arrowUp" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto"><path d="M0 6L3 0L6 6" fill="#7c6af7"/></marker></defs>`;
+}
+
+function drawBien() {
+  /* Pulgar arriba */
+  return baseHand([1,0,0,0,0]);
+}
+
+function drawMal() {
+  /* Pulgar abajo: mano invertida */
+  return `<g transform="rotate(180, 100, 110)">` + baseHand([1,0,0,0,0]) + `</g>`;
+}
+
+function drawAgua() {
+  /* W: pulgar, índice y medio extendidos */
+  return baseHand([1,1,1,0,0]);
+}
+
+function drawCasa() {
+  /* Forma de techo con ambas manos — simplificado a una */
+  return baseHand([1,1,1,1,1]) + `<polygon points="98,30 60,65 136,65" fill="none" stroke="#3ecf8e" stroke-width="1.5" opacity="0.6"/>`;
+}
+
+function drawComer() {
+  /* Mano cerrada hacia boca */
+  return baseHand([0,0,0,0,0]) + `<ellipse cx="98" cy="80" rx="20" ry="14" fill="rgba(62,207,142,0.15)" stroke="#3ecf8e" stroke-width="1" stroke-dasharray="3 3"/>`;
+}
+
+function drawDormir() {
+  /* Mano plana, inclinada cerca del ojo */
+  return baseHand([1,1,1,1,1]) + `<text x="98" y="25" text-anchor="middle" fill="#7c6af7" font-size="18" opacity="0.7">zz</text>`;
+}
+
+function drawAyuda() {
+  /* Puño sobre palma abierta */
+  return baseHand([1,0,0,0,0]) + `<ellipse cx="98" cy="185" rx="35" ry="12" fill="#f5c9a0" stroke="#c07040" stroke-width="1" opacity="0.6"/>`;
+}
+
+function drawOne() { return baseHand([0,1,0,0,0]); }
+function drawTwo() { return baseHand([0,1,1,0,0]); }
+function drawThree() { return baseHand([0,1,1,1,0]); }
+
+/* ════════ ABECEDARIO DACTILOLÓGICO ════════ */
+const FINGER_ALPHABET = {
+  'a': [0,0,0,0,0],
+  'b': [0,1,1,1,1],
+  'c': [1,1,1,1,1],
+  'd': [0,1,0,0,0],
+  'e': [0,0,0,0,0],
+  'f': [1,1,1,0,0],
+  'g': [0,1,0,0,0],
+  'h': [0,1,1,0,0],
+  'i': [0,0,0,0,1],
+  'j': [0,0,0,0,1],
+  'k': [1,1,1,0,0],
+  'l': [1,1,0,0,0],
+  'm': [0,0,0,0,0],
+  'n': [0,0,0,0,0],
+  'o': [1,1,1,1,1],
+  'p': [1,1,1,0,0],
+  'q': [0,1,0,0,0],
+  'r': [0,1,1,0,0],
+  's': [0,0,0,0,0],
+  't': [0,0,0,0,0],
+  'u': [0,1,1,0,0],
+  'v': [0,1,1,0,0],
+  'w': [0,1,1,1,0],
+  'x': [0,1,0,0,0],
+  'y': [1,0,0,0,1],
+  'z': [0,1,0,0,0],
 };
 
-function avatarPose(face, hx, hy, anim, fingers = 'open') {
-    let handContent = '';
-    if(fingers === 'pray') {
-        handContent = `<path d="M140 180 L150 140 L160 180 Z" fill="var(--S)" stroke="var(--OT)"/>`;
-    } else if (fingers === 'roof') {
-        handContent = `<path d="M110 160 L150 120 L190 160" stroke="var(--S)" stroke-width="12" fill="none" stroke-linecap="round"/>`;
-    } else if (fingers === 'write') {
-        handContent = `<circle cx="${hx}" cy="${hy}" r="12" fill="var(--S)" stroke="var(--OT)"/><line x1="${hx}" y1="${hy}" x2="${hx+10}" y2="${hy-15}" stroke="var(--text)" stroke-width="2"/>`;
-    } else if (fingers === 'group') {
-        handContent = `<circle cx="130" cy="220" r="10" fill="var(--S)"/><circle cx="150" cy="220" r="10" fill="var(--S)"/><circle cx="170" cy="220" r="10" fill="var(--S)"/>`;
-    } else if (Array.isArray(fingers)) {
-        handContent = drawHand(hx, hy, fingers);
+/* ════════ MOTOR DE SEÑAS ════════ */
+let wordQueue = [];
+let isAnimating = false;
+let recognition = null;
+let isListening = false;
+let fullTranscript = '';
+
+function showSign(word) {
+  const w = word.toLowerCase().trim();
+  const svg = document.getElementById('handSvg');
+  const label = document.getElementById('wordLabel');
+  const modeLabel = document.getElementById('modeLabel');
+  const letterGrid = document.getElementById('letterGrid');
+
+  label.classList.add('fade');
+
+  setTimeout(() => {
+    if (SIGNS[w]) {
+      svg.innerHTML = SIGNS[w]();
+      modeLabel.textContent = 'Seña directa — LSC';
+      letterGrid.innerHTML = '';
     } else {
-        handContent = drawHand(hx, hy, [1,1,1,1,1]);
+      /* Deletreo dactilológico letra por letra */
+      modeLabel.textContent = 'Deletreo dactilológico';
+      spellingAnimate(w, svg, letterGrid);
+    }
+    label.innerHTML = `<span class="highlight">${word.toUpperCase()}</span>`;
+    label.classList.remove('fade');
+  }, 150);
+}
+
+function spellingAnimate(word, svg, grid) {
+  const letters = word.split('').filter(c => c.match(/[a-záéíóúñ]/i));
+  grid.innerHTML = '';
+  letters.forEach((l, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'letter-cell';
+    cell.textContent = l.toUpperCase();
+    cell.id = `lc_${i}`;
+    grid.appendChild(cell);
+  });
+
+  let idx = 0;
+  const speed = parseInt(document.getElementById('speedSlider').value) * 0.4;
+
+  function nextLetter() {
+    if (idx > 0) {
+      const prev = document.getElementById(`lc_${idx-1}`);
+      if (prev) prev.classList.remove('active');
+    }
+    if (idx >= letters.length) return;
+
+    const cell = document.getElementById(`lc_${idx}`);
+    if (cell) cell.classList.add('active');
+
+    const l = letters[idx].toLowerCase();
+    const config = FINGER_ALPHABET[l] || [1,1,1,1,1];
+    svg.innerHTML = baseHand(config);
+
+    idx++;
+    setTimeout(nextLetter, speed);
+  }
+  nextLetter();
+}
+
+/* ════════ COLA DE PALABRAS ════════ */
+function enqueueWords(text) {
+  const words = text.split(/\s+/).filter(w => w.length > 0);
+  words.forEach(w => wordQueue.push(w));
+  renderQueue();
+  if (!isAnimating) processQueue();
+}
+
+function renderQueue() {
+  const container = document.getElementById('wordQueue');
+  container.innerHTML = wordQueue.slice(0, 12).map((w, i) => {
+    return `<span class="queue-word ${i===0 ? 'current' : ''}">${w}</span>`;
+  }).join('');
+}
+
+function processQueue() {
+  if (wordQueue.length === 0) { isAnimating = false; return; }
+  isAnimating = true;
+  const word = wordQueue.shift();
+  showSign(word);
+  renderQueue();
+  const speed = parseInt(document.getElementById('speedSlider').value);
+  const duration = word.length > 5 ? speed * (word.length * 0.4) : speed;
+  setTimeout(processQueue, Math.max(duration, 600));
+}
+
+/* ════════ SPEECH RECOGNITION ════════ */
+function startListening() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.');
+    return;
+  }
+
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRec();
+  recognition.lang = document.getElementById('langSelect').value;
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('statusDot').className = 'status-dot active listening';
+    document.getElementById('statusText').textContent = 'Escuchando...';
+    document.getElementById('btnStart').style.display = 'none';
+    document.getElementById('btnStop').style.display = 'flex';
+  };
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let final = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        final += t;
+      } else {
+        interim += t;
+      }
     }
 
-    return `
-        <g class="${anim ? 'anim-active' : ''}">
-            <rect x="105" y="175" width="90" height="105" rx="12" fill="var(--SH)"/>
-            <rect x="136" y="155" width="28" height="28" rx="6" fill="var(--S)"/>
-            <ellipse cx="150" cy="120" rx="42" ry="46" fill="var(--S)" stroke="var(--OT)"/>
-            <circle cx="135" cy="115" r="3" fill="#000"/><circle cx="165" cy="115" r="3" fill="#000"/>
-            ${face === 'happy' ? `<path d="M138 140 Q150 150 162 140" stroke="var(--OT)" fill="none" stroke-width="2"/>` : `<line x1="140" y1="142" x2="160" y2="142" stroke="var(--OT)" stroke-width="2"/>`}
-            <path d="M105 185 L70 250" stroke="var(--SH)" stroke-width="20" stroke-linecap="round"/>
-            <path d="M195 185 L${hx} ${hy}" stroke="var(--SH)" stroke-width="20" stroke-linecap="round"/>
-            ${handContent}
-        </g>`;
-}
-
-function drawHand(cx, cy, f) {
-    let res = `<ellipse cx="${cx}" cy="${cy}" rx="18" ry="14" fill="var(--S)" stroke="var(--OT)"/>`;
-    const offsets = [{x:-15, y:-25}, {x:-5, y:-28}, {x:5, y:-28}, {x:15, y:-25}, {x:22, y:-15}];
-    offsets.forEach((o, i) => { if(f[i]) res += `<rect x="${cx+o.x}" y="${cy+o.y}" width="9" height="20" rx="4" fill="var(--S)" stroke="var(--OT)"/>`; });
-    return res;
-}
-
-let queue = [];
-let isProcessing = false;
-
-async function processQueue() {
-    if (queue.length === 0) { isProcessing = false; return; }
-    isProcessing = true;
-    let word = queue.shift().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    // Soporte para frases compuestas como "derecho de peticion"
-    if(word === "derecho" && queue[0] === "de" && queue[1] === "peticion") {
-        word = "derecho de peticion";
-        queue.shift(); queue.shift();
+    if (final) {
+      fullTranscript += final + ' ';
+      updateTranscript(final, false);
+      enqueueWords(final);
+    } else if (interim) {
+      updateTranscript(interim, true);
     }
+  };
 
-    wlabel.textContent = word.toUpperCase();
-    
-    if (POSES[word] || POSES[word.split(' ')[0]]) {
-        mainDisplay.className = "display-area mode-avatar";
-        modeTag.textContent = "Seña Especializada";
-        svg.innerHTML = POSES[word] ? POSES[word]() : POSES[word.split(' ')[0]]();
-        await new Promise(r => setTimeout(r, 1300));
-    } else {
-        mainDisplay.className = "display-area mode-hand";
-        modeTag.textContent = "Deletreando...";
-        for (let char of word) {
-            if (ABC[char]) {
-                svg.innerHTML = drawHand(150, 200, ABC[char]);
-                await new Promise(r => setTimeout(r, 450));
-            }
-        }
-    }
-    processQueue();
+  recognition.onerror = (e) => {
+    if (e.error === 'no-speech') return;
+    document.getElementById('statusText').textContent = 'Error: ' + e.error;
+  };
+
+  recognition.onend = () => {
+    if (isListening) recognition.start();
+  };
+
+  recognition.start();
 }
 
-let recognition;
-function startRecognition() {
-    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new Speech();
-    recognition.lang = 'es-CO';
-    recognition.continuous = true;
-    recognition.onstart = () => {
-        document.getElementById('status').className = 'active-mic';
-        document.getElementById('stxt').textContent = 'Escuchando...';
-        document.getElementById('btnStart').style.display = 'none';
-        document.getElementById('btnStop').style.display = 'block';
-    };
-    recognition.onresult = (event) => {
-        const transcript = event.results[event.results.length - 1][0].transcript;
-        const words = transcript.trim().split(' ');
-        queue.push(...words);
-        if (!isProcessing) processQueue();
-        document.getElementById('tbox').innerHTML += `<span>${transcript} </span>`;
-    };
-    recognition.start();
+function stopListening() {
+  isListening = false;
+  if (recognition) recognition.stop();
+  document.getElementById('statusDot').className = 'status-dot';
+  document.getElementById('statusText').textContent = 'Detenido';
+  document.getElementById('btnStart').style.display = 'flex';
+  document.getElementById('btnStop').style.display = 'none';
 }
 
-function stopRecognition() {
-    recognition.stop();
-    document.getElementById('status').className = '';
-    document.getElementById('stxt').textContent = 'Micrófono Apagado';
-    document.getElementById('btnStart').style.display = 'block';
-    document.getElementById('btnStop').style.display = 'none';
+function updateTranscript(text, isInterim) {
+  const box = document.getElementById('transcriptBox');
+  box.innerHTML = fullTranscript +
+    (isInterim ? `<span class="current-word">${text}</span>` : '');
+  box.scrollTop = box.scrollHeight;
 }
 
-function toggleOverlay() { document.body.classList.toggle('overlay'); }
-svg.innerHTML = avatarPose('neutral', 70, 250, false, [0,0,0,0,0]);
+/* ════════ UTILS ════════ */
+const testWords = ['hola', 'gracias', 'amor', 'ayuda', 'si', 'no', 'bien'];
+let testIdx = 0;
+function testWord() {
+  const w = testWords[testIdx % testWords.length];
+  testIdx++;
+  enqueueWords(w);
+}
+
+function toggleOverlay() {
+  document.body.classList.toggle('overlay-mode');
+  const url = document.getElementById('obsUrl');
+  if (document.body.classList.contains('overlay-mode')) {
+    url.textContent = 'MODO OVERLAY ACTIVO — Ctrl+Z para salir';
+  } else {
+    url.textContent = 'file://senyas-obs.html?overlay=1';
+  }
+}
+
+/* URL param overlay automático */
+if (new URLSearchParams(window.location.search).get('overlay') === '1') {
+  document.body.classList.add('overlay-mode');
+}
+
+/* Dibujar mano inicial */
+document.getElementById('handSvg').innerHTML = drawHola();
 </script>
 </body>
 </html>
