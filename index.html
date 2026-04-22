@@ -3,543 +3,447 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Señas OBS</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Señas OBS — LSC</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: rgba(255,255,255,0.08);
-    --accent: #7c6af7;
-    --accent2: #3ecf8e;
-    --text: #f0f0f5;
-    --muted: rgba(240,240,245,0.45);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Space Grotesk', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── OVERLAY MODE (lo que ve OBS) ── */
-  body.overlay {
-    background: transparent !important;
-  }
-  body.overlay .ui-panel { display: none !important; }
-  body.overlay .stage {
-    grid-template-columns: 1fr !important;
-    background: transparent !important;
-  }
-  body.overlay .sign-display {
-    background: transparent !important;
-    min-height: 100vh;
-    justify-content: flex-end;
-    padding-bottom: 60px;
-  }
-  body.overlay .word-label { font-size: 80px !important; text-shadow: 0 2px 24px rgba(0,0,0,0.9); }
-  body.overlay .sign-canvas { width: 320px; height: 320px; }
-  body.overlay #handSvg { width: 320px; height: 320px; }
-
-  /* ── LAYOUT ── */
-  .app { display: grid; grid-template-rows: auto 1fr auto; min-height: 100vh; }
-
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 24px; border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .logo { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px; }
-  .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-
-  .stage {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-  }
-
-  .sign-display {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 40px; min-height: 480px;
-    background: #0d0d14;
-  }
-
-  .sign-canvas { width: 260px; height: 260px; }
-
-  .word-label {
-    margin-top: 20px; font-size: 52px; font-weight: 700;
-    letter-spacing: -2px; text-align: center; min-height: 70px;
-    transition: opacity 0.15s;
-  }
-  .word-label.fade { opacity: 0; }
-  .word-label .hl { color: var(--accent); }
-
-  .mode-tag {
-    margin-top: 6px; font-size: 11px; color: var(--muted);
-    letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
-  }
-
-  .letter-grid {
-    display: flex; flex-wrap: wrap; gap: 5px;
-    justify-content: center; margin-top: 14px; max-width: 300px;
-  }
-  .lc {
-    width: 34px; height: 34px; border: 1px solid var(--border);
-    border-radius: 6px; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
-    color: var(--muted); background: var(--surface); transition: all 0.12s;
-  }
-  .lc.on { background: var(--accent); color: #fff; border-color: var(--accent); transform: scale(1.1); }
-
-  /* ── PANEL ── */
-  .ui-panel {
-    border-left: 1px solid var(--border); background: var(--surface);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-  .panel-section { padding: 18px; border-bottom: 1px solid var(--border); }
-  .plabel {
-    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 12px; font-weight: 600;
-  }
-
-  button {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 10px 16px; border-radius: 8px;
-    border: 1px solid var(--border); background: transparent;
-    color: var(--text); font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.12s;
-    margin-bottom: 7px;
-  }
-  button:hover { background: rgba(255,255,255,0.05); }
-  button:active { transform: scale(0.98); }
-  button.prim { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button.prim:hover { background: #6b59e0; }
-  button.danger { border-color: rgba(230,80,80,0.35); color: #e05555; }
-  button.danger:hover { background: rgba(230,80,80,0.08); }
-
-  .transcript {
-    padding: 14px 18px; font-size: 12px; line-height: 1.8;
-    color: var(--muted); max-height: 160px; overflow-y: auto;
-    flex: 1;
-  }
-  .transcript .live { color: var(--accent2); }
-
-  .word-queue {
-    display: flex; flex-wrap: wrap; gap: 5px; padding: 12px 18px;
-  }
-  .qw {
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
-    border: 1px solid var(--border); color: var(--muted); transition: all 0.15s;
-  }
-  .qw.cur { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .qw.done { background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.3); color: var(--accent2); }
-
-  select, input[type=range] {
-    background: var(--bg); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; padding: 5px 8px;
-    font-family: 'Space Grotesk', sans-serif; font-size: 12px;
-  }
-  .srow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
-  .srow label { color: var(--muted); }
-
-  footer {
-    padding: 10px 24px; border-top: 1px solid var(--border);
-    background: var(--surface); display: flex; align-items: center;
-    justify-content: space-between; font-size: 11px; color: var(--muted);
-  }
-  .url-badge {
-    font-family: 'JetBrains Mono', monospace; background: var(--bg);
-    padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border);
-    color: var(--accent2); font-size: 10px;
-  }
-
-  /* ── MIC PERMISSION BANNER ── */
-  .mic-banner {
-    background: rgba(124,106,247,0.12); border: 1px solid rgba(124,106,247,0.3);
-    border-radius: 8px; padding: 12px 14px; font-size: 12px; color: var(--text);
-    line-height: 1.6; margin-bottom: 8px;
-  }
-  .mic-banner strong { color: var(--accent); }
-
-  /* ── STATUS ── */
-  .status-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-  .sdot { width: 8px; height: 8px; border-radius: 50%; background: #444; transition: all 0.3s; flex-shrink: 0; }
-  .sdot.on { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
-  .sdot.pulse { background: var(--accent2); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* ── HAND ANIMATIONS ── */
-  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-  @keyframes shake { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-7deg)} 75%{transform:rotate(7deg)} }
-  @keyframes appear { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
-  .hanim { animation: appear 0.25s ease-out, bob 2.2s ease-in-out 0.25s infinite; }
-  .hshake { animation: appear 0.25s ease-out, shake 0.7s ease-in-out 0.25s infinite; }
-  .hnod { animation: appear 0.25s ease-out, bob 0.55s ease-in-out 0.25s infinite; }
+:root{--bg:#09090f;--surf:#111119;--bord:rgba(255,255,255,0.07);--acc:#7c6af7;--grn:#3ecf8e;--text:#f0f0f8;--mut:rgba(240,240,248,0.42);--S:#f5c9a0;--S2:#e8b080;--S3:#d49060;--OUT:#b87030;--SH:#2a3a8a;--SH2:#1e2d6e;--HR:#2c1a0a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body.overlay{background:transparent!important;}
+body.overlay .ui-panel,body.overlay header,body.overlay footer{display:none!important;}
+body.overlay .stage{grid-template-columns:1fr!important;}
+body.overlay .sign-display{background:transparent!important;min-height:100vh;justify-content:center;}
+body.overlay .wlabel{font-size:72px!important;text-shadow:0 3px 28px rgba(0,0,0,0.95);}
+.app{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;}
+header{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;border-bottom:1px solid var(--bord);background:var(--surf);}
+.logo{font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px;}
+.ldot{width:9px;height:9px;border-radius:50%;background:var(--acc);}
+.srow-hdr{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);}
+.sdot{width:7px;height:7px;border-radius:50%;background:#333;transition:all .3s;flex-shrink:0;}
+.sdot.on{background:var(--grn);box-shadow:0 0 6px var(--grn);}
+.sdot.pulse{background:var(--grn);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.stage{display:grid;grid-template-columns:1fr 290px;}
+.sign-display{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;min-height:480px;background:#0b0b12;}
+.avatar-wrap{width:300px;height:360px;}
+#avatarSvg{display:block;width:300px;height:360px;}
+.wlabel{margin-top:16px;font-size:48px;font-weight:700;letter-spacing:-2px;text-align:center;min-height:60px;transition:opacity .15s;}
+.wlabel.fade{opacity:0;}
+.wlabel .hl{color:var(--acc);}
+.mtag{margin-top:5px;font-size:10px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+.lgrid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:12px;max-width:280px;}
+.lc{width:32px;height:32px;border:1px solid var(--bord);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--mut);background:var(--surf);transition:all .1s;}
+.lc.on{background:var(--acc);color:#fff;border-color:var(--acc);transform:scale(1.12);}
+.ui-panel{border-left:1px solid var(--bord);background:var(--surf);display:flex;flex-direction:column;overflow:hidden;}
+.psect{padding:16px;border-bottom:1px solid var(--bord);}
+.plbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px;font-weight:600;}
+button{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px 14px;border-radius:7px;border:1px solid var(--bord);background:transparent;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;margin-bottom:6px;}
+button:hover{background:rgba(255,255,255,0.05);}
+button:active{transform:scale(0.98);}
+button.prim{background:var(--acc);border-color:var(--acc);color:#fff;}
+button.prim:hover{background:#6a59e0;}
+button.dng{border-color:rgba(220,70,70,.35);color:#e05050;}
+button.dng:hover{background:rgba(220,70,70,.08);}
+.tbox{padding:12px 16px;font-size:12px;line-height:1.8;color:var(--mut);max-height:140px;overflow-y:auto;flex:1;}
+.tbox .live{color:var(--grn);}
+.wq{display:flex;flex-wrap:wrap;gap:4px;padding:10px 16px;}
+.qw{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bord);color:var(--mut);}
+.qw.cur{background:var(--acc);border-color:var(--acc);color:#fff;}
+select,input[type=range]{background:var(--bg);border:1px solid var(--bord);color:var(--text);border-radius:5px;padding:4px 7px;font-family:'Space Grotesk',sans-serif;font-size:12px;}
+.srow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:12px;}
+.srow label{color:var(--mut);}
+.mbanner{background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.25);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--text);line-height:1.6;margin-bottom:8px;}
+.mbanner strong{color:var(--acc);}
+footer{padding:9px 22px;border-top:1px solid var(--bord);background:var(--surf);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--mut);}
+.ubadge{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:3px 9px;border-radius:4px;border:1px solid var(--bord);color:var(--grn);font-size:10px;}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes wave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-20deg)}75%{transform:rotate(20deg)}}
+@keyframes nod{0%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}70%{transform:translateY(2px)}}
+@keyframes appear{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.ab{animation:appear .25s ease-out,bob 2s ease-in-out .25s infinite;}
+.aw{animation:appear .25s ease-out,wave .8s ease-in-out .25s infinite;}
+.an{animation:appear .25s ease-out,nod .55s ease-in-out .25s infinite;}
+.as{animation:appear .3s ease-out;}
 </style>
 </head>
 <body>
 <div class="app">
-
 <header>
-  <div class="logo">
-    <div class="logo-dot"></div>
-    Señas OBS — Intérprete en vivo
-  </div>
-  <div class="status-row" style="margin:0">
-    <div class="sdot" id="sdot"></div>
-    <span id="stext">Detenido</span>
-  </div>
+  <div class="logo"><div class="ldot"></div>Señas OBS — LSC Colombia</div>
+  <div class="srow-hdr"><div class="sdot" id="sdot"></div><span id="stxt">Detenido</span></div>
 </header>
-
 <div class="stage">
-
-  <!-- ÁREA DE SEÑAS -->
   <div class="sign-display">
-    <div class="sign-canvas">
-      <svg id="handSvg" viewBox="0 0 200 220" width="260" height="260" style="display:block"></svg>
-    </div>
-    <div class="word-label" id="wlabel"><span class="hl">Listo</span></div>
-    <div class="mode-tag" id="mtag">Esperando...</div>
-    <div class="letter-grid" id="lgrid"></div>
+    <div class="avatar-wrap"><svg id="avatarSvg" viewBox="0 0 300 360"></svg></div>
+    <div class="wlabel" id="wlabel"><span class="hl">Listo</span></div>
+    <div class="mtag" id="mtag">Esperando audio...</div>
+    <div class="lgrid" id="lgrid"></div>
   </div>
-
-  <!-- PANEL DE CONTROL -->
   <div class="ui-panel">
-    <div class="panel-section">
-      <div class="plabel">Control de micrófono</div>
-      <div class="mic-banner">
-        Al presionar <strong>Iniciar</strong>, el navegador pedirá permiso de micrófono. <strong>Acepta</strong> para que funcione en OBS.
-      </div>
-      <button class="prim" id="btnStart" onclick="startListening()">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="5"/></svg>
-        Iniciar escucha
-      </button>
-      <button class="danger" id="btnStop" onclick="stopListening()" style="display:none">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="2" y="2" width="8" height="8" rx="1"/></svg>
-        Detener
-      </button>
-      <button onclick="testCycle()">Probar animaciones</button>
-      <button onclick="toggleOverlay()">
-        Vista overlay OBS
-      </button>
+    <div class="psect">
+      <div class="plbl">Micrófono</div>
+      <div class="mbanner">Presiona <strong>Iniciar</strong> y acepta el permiso de micrófono.</div>
+      <button class="prim" id="btnS" onclick="startL()">&#9679; Iniciar escucha</button>
+      <button class="dng" id="btnX" onclick="stopL()" style="display:none">&#9632; Detener</button>
+      <button onclick="testCycle()">Probar palabras</button>
+      <button onclick="toggleOverlay()">Vista overlay OBS</button>
     </div>
-
-    <div class="panel-section">
-      <div class="plabel">Ajustes</div>
-      <div class="srow">
-        <label>Idioma voz</label>
+    <div class="psect">
+      <div class="plbl">Ajustes</div>
+      <div class="srow"><label>Idioma</label>
         <select id="langSel">
           <option value="es-CO">Español Colombia</option>
           <option value="es-ES">Español España</option>
-          <option value="en-US">English (US)</option>
+          <option value="en-US">English</option>
         </select>
       </div>
-      <div class="srow">
-        <label>Velocidad señas</label>
-        <input type="range" id="speed" min="300" max="1500" value="700" step="50" style="width:90px">
+      <div class="srow"><label>Velocidad</label>
+        <input type="range" id="speed" min="200" max="1400" value="650" step="50" style="width:85px">
       </div>
-      <div class="srow">
-        <label>Tamaño texto</label>
-        <input type="range" id="tsize" min="28" max="100" value="52" step="2" style="width:90px"
+      <div class="srow"><label>Texto</label>
+        <input type="range" id="tsize" min="24" max="96" value="48" step="2" style="width:85px"
           oninput="document.getElementById('wlabel').style.fontSize=this.value+'px'">
       </div>
     </div>
-
-    <div class="panel-section">
-      <div class="plabel">Transcripción en vivo</div>
-      <div class="transcript" id="tbox">
-        <span style="font-style:italic;opacity:0.4">El audio aparecerá aquí...</span>
-      </div>
+    <div class="psect"><div class="plbl">Transcripción</div>
+      <div class="tbox" id="tbox"><span style="opacity:.3;font-style:italic">El audio aparecerá aquí...</span></div>
     </div>
-
-    <div class="panel-section" style="border:none">
-      <div class="plabel">Cola de palabras</div>
-      <div class="word-queue" id="wqueue"></div>
+    <div class="psect" style="border:none"><div class="plbl">Cola de palabras</div>
+      <div class="wq" id="wq"></div>
     </div>
   </div>
-
 </div>
-
 <footer>
-  <span>Pega esta URL en OBS → Browser Source (con HTTPS el micrófono funciona)</span>
-  <span class="url-badge" id="currentUrl">cargando URL...</span>
+  <span>OBS Browser Source — usa tu URL de GitHub Pages con HTTPS</span>
+  <span class="ubadge" id="ushow">...</span>
 </footer>
-
 </div>
-
 <script>
-/* ══════════════════════════════════════════
-   DICCIONARIO LSC / ASL — MANOS EN SVG
-   ══════════════════════════════════════════ */
+/* ─── COLORES ─── */
+const SK='#f5c9a0',SK2='#e8b080',SK3='#d49060',OT='#b87030';
+const SH='#2a3a8a',SH2='#1e2d6e',HR='#2c1a0a';
 
-function hand(ext, anim) {
-  /* ext = [pulgar, indice, medio, anular, menique] 1=extendido 0=doblado */
-  const animClass = anim || 'hanim';
-  const fingers = [
-    { bx:52, by:95, tx:46, ty:48, angle:-22 },
-    { bx:72, by:90, tx:72, ty:36, angle:4 },
-    { bx:90, by:87, tx:90, ty:29, angle:0 },
-    { bx:108,by:89, tx:108,ty:36, angle:-3 },
-    { bx:122,by:94, tx:122,ty:50, angle:-9 },
+/* ─── PARTES BASE ─── */
+function head(expr){
+  const mouth = expr==='happy'
+    ? `<path d="M138 145 Q150 154 162 145" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : expr==='sad'
+    ? `<path d="M138 150 Q150 143 162 150" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : `<path d="M140 146 Q150 150 160 146" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+  return `
+    <ellipse cx="150" cy="120" rx="42" ry="46" fill="${SK}" stroke="${OT}" stroke-width="1.5"/>
+    <ellipse cx="150" cy="82" rx="42" ry="22" fill="${HR}"/>
+    <rect x="108" y="80" width="14" height="30" rx="7" fill="${HR}"/>
+    <rect x="178" y="80" width="14" height="30" rx="7" fill="${HR}"/>
+    <ellipse cx="136" cy="118" rx="7" ry="8" fill="white" stroke="${OT}" stroke-width="0.8"/>
+    <ellipse cx="164" cy="118" rx="7" ry="8" fill="white" stroke="${OT}" stroke-width="0.8"/>
+    <circle cx="137" cy="119" r="4" fill="${HR}"/>
+    <circle cx="165" cy="119" r="4" fill="${HR}"/>
+    <circle cx="138" cy="117" r="1.5" fill="white"/>
+    <circle cx="166" cy="117" r="1.5" fill="white"/>
+    <path d="M129 108 Q136 104 143 108" stroke="${HR}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M157 108 Q164 104 171 108" stroke="${HR}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M150 122 Q146 132 148 136 Q150 138 152 136 Q154 132 150 122" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
+    ${mouth}`;
+}
+
+function torso(){
+  return `
+    <rect x="105" y="175" width="90" height="105" rx="12" fill="${SH}" stroke="${SH2}" stroke-width="1.5"/>
+    <rect x="136" y="155" width="28" height="28" rx="6" fill="${SK}" stroke="${OT}" stroke-width="1"/>`;
+}
+
+function armL(x1,y1,x2,y2){
+  return `
+    <path d="M${x1} ${y1} Q${(x1+x2)/2-10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH}" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <path d="M${x1} ${y1} Q${(x1+x2)/2-10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH2}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
+}
+
+function armR(x1,y1,x2,y2){
+  return `
+    <path d="M${x1} ${y1} Q${(x1+x2)/2+10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH}" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <path d="M${x1} ${y1} Q${(x1+x2)/2+10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH2}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
+}
+
+/* mano relajada (puño suave) */
+function handRelax(cx,cy,r=1){
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${16*r}" ry="${13*r}" fill="${SK}" stroke="${OT}" stroke-width="1"/>
+    <ellipse cx="${cx-5*r}" cy="${cy-8*r}" rx="${6*r}" ry="${10*r}" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <ellipse cx="${cx+3*r}" cy="${cy-9*r}" rx="${5*r}" ry="${9*r}" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <ellipse cx="${cx-12*r}" cy="${cy-3*r}" rx="${5*r}" ry="${8*r}" fill="${SK}" stroke="${OT}" stroke-width="0.7"/>`;
+}
+
+/* mano abierta */
+function handOpen(cx,cy,angle=0){
+  const g=`rotate(${angle},${cx},${cy})`;
+  return `<g transform="${g}">
+    <ellipse cx="${cx}" cy="${cy}" rx="16" ry="13" fill="${SK}" stroke="${OT}" stroke-width="1"/>
+    <rect x="${cx-18}" y="${cy-28}" width="10" height="20" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="${cx-7}" y="${cy-30}" width="10" height="23" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="${cx+4}" y="${cy-30}" width="10" height="23" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="${cx+14}" y="${cy-28}" width="9" height="20" rx="4.5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="${cx-24}" y="${cy-18}" width="10" height="14" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8" transform="rotate(-30,${cx-19},${cy-11})"/>
+  </g>`;
+}
+
+/* mano con dedos específicos extendidos */
+function handFinger(cx,cy,ext,angle=0){
+  const fingers=[
+    {dx:-16,dy:-24,w:10,h:22,ra:-15},
+    {dx:-6, dy:-26,w:10,h:25,ra:-5},
+    {dx:4,  dy:-26,w:10,h:25,ra:0},
+    {dx:14, dy:-24,w:9, h:22,ra:5},
+    {dx:22, dy:-20,w:8, h:18,ra:12},
   ];
-  let s = `<g class="${animClass}">`;
-  s += `<ellipse cx="96" cy="145" rx="44" ry="52" fill="#f5c9a0" stroke="#c07040" stroke-width="1.2"/>`;
-  fingers.forEach((f,i) => {
-    if (ext[i]) {
-      s += `<rect x="${f.tx-7}" y="${f.ty}" width="15" height="${f.by-f.ty+10}" rx="7.5" fill="#f5c9a0" stroke="#c07040" stroke-width="1" transform="rotate(${f.angle},${f.tx},${f.by})"/>`;
-      s += `<line x1="${f.tx-7}" y1="${f.by-8}" x2="${f.tx+8}" y2="${f.by-8}" stroke="#c07040" stroke-width="0.6" opacity="0.45"/>`;
+  const g=`rotate(${angle},${cx},${cy})`;
+  let s=`<g transform="${g}"><ellipse cx="${cx}" cy="${cy}" rx="18" ry="13" fill="${SK}" stroke="${OT}" stroke-width="1"/>`;
+  fingers.forEach((f,i)=>{
+    const fx=cx+f.dx, fy=cy+f.dy;
+    if(ext[i]){
+      s+=`<rect x="${fx-f.w/2}" y="${fy}" width="${f.w}" height="${f.h}" rx="${f.w/2}" fill="${SK}" stroke="${OT}" stroke-width="0.9" transform="rotate(${f.ra},${fx},${cy})"/>`;
     } else {
-      s += `<ellipse cx="${f.bx}" cy="${f.by+13}" rx="9" ry="7" fill="#e8b088" stroke="#c07040" stroke-width="0.8"/>`;
+      s+=`<ellipse cx="${fx}" cy="${cy-4}" rx="${f.w/2+1}" ry="5" fill="${SK2}" stroke="${OT}" stroke-width="0.7"/>`;
     }
   });
-  s += `<rect x="74" y="189" width="44" height="26" rx="8" fill="#f5c9a0" stroke="#c07040" stroke-width="1"/>`;
-  s += `</g>`;
+  s+=`</g>`;
   return s;
 }
 
-function fist(anim)        { return hand([0,0,0,0,0], anim); }
-function openHand(anim)    { return hand([1,1,1,1,1], anim); }
-function thumbUp()         { return hand([1,0,0,0,0], 'hanim'); }
-function thumbDown()       {
-  return `<g transform="rotate(180,100,110)">${hand([1,0,0,0,0],'hanim')}</g>`;
+/* ─── POSES COMPLETAS ─── */
+function poseNeutral(){
+  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}${armR(195,185,225,248)}${handRelax(228,256)}</g>`;
 }
-function pointIndex(anim)  { return hand([0,1,0,0,0], anim||'hanim'); }
-function peace()           { return hand([0,1,1,0,0], 'hanim'); }
-function ily()             { return hand([1,1,0,0,1], 'hanim'); }
-function ok() {
-  return hand([1,0,0,0,0],'hanim') +
-    `<circle cx="72" cy="145" r="14" fill="none" stroke="#c07040" stroke-width="1.5" opacity="0.6"/>`;
-}
-function cShape()          { return hand([1,1,1,1,1],'hanim') + `<ellipse cx="60" cy="100" rx="16" ry="22" fill="none" stroke="#c07040" stroke-width="1.5" opacity="0.5"/>`; }
 
-const SIGNS = {
-  'hola':    () => openHand('hshake'),
-  'hello':   () => openHand('hshake'),
-  'gracias': () => hand([0,1,1,0,0], 'hanim') + `<circle cx="148" cy="88" r="16" fill="rgba(245,200,160,0.2)" stroke="#c07040" stroke-width="0.7" stroke-dasharray="3 2"/>`,
-  'thanks':  () => hand([0,1,1,0,0], 'hanim'),
-  'si':      () => fist('hnod'),
-  'sí':      () => fist('hnod'),
-  'yes':     () => fist('hnod'),
-  'no':      () => pointIndex('hshake'),
-  'amor':    () => ily(),
-  'love':    () => ily(),
-  'yo':      () => pointIndex('hanim'),
-  'i':       () => pointIndex('hanim'),
-  'me':      () => pointIndex('hanim'),
-  'tú':      () => pointIndex('hanim') + `<line x1="80" y1="42" x2="80" y2="16" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 2"/>`,
-  'you':     () => pointIndex('hanim'),
-  'bien':    () => thumbUp(),
-  'good':    () => thumbUp(),
-  'mal':     () => thumbDown(),
-  'bad':     () => thumbDown(),
-  'agua':    () => hand([1,1,1,0,0],'hanim'),
-  'water':   () => hand([1,1,1,0,0],'hanim'),
-  'por':     () => peace(),
-  'favor':   () => hand([0,1,1,1,0],'hanim'),
-  'please':  () => hand([0,1,1,1,0],'hanim'),
-  'casa':    () => openHand('hanim') + `<polygon points="96,22 62,56 130,56" fill="none" stroke="#3ecf8e" stroke-width="1.5" opacity="0.6"/>`,
-  'home':    () => openHand('hanim'),
-  'comer':   () => fist('hanim') + `<ellipse cx="96" cy="76" rx="22" ry="14" fill="rgba(62,207,142,0.15)" stroke="#3ecf8e" stroke-width="1" stroke-dasharray="3 2"/>`,
-  'eat':     () => fist('hanim'),
-  'dormir':  () => openHand('hanim') + `<text x="96" y="24" text-anchor="middle" fill="#7c6af7" font-size="16" font-family="sans-serif" opacity="0.75">zz</text>`,
-  'sleep':   () => openHand('hanim'),
-  'ayuda':   () => thumbUp() + `<ellipse cx="96" cy="188" rx="38" ry="10" fill="#f5c9a0" stroke="#c07040" stroke-width="1" opacity="0.5"/>`,
-  'help':    () => thumbUp(),
-  'trabajo': () => fist('hanim'),
-  'work':    () => fist('hanim'),
-  'familia': () => openHand('hanim'),
-  'family':  () => openHand('hanim'),
-  'feliz':   () => hand([0,1,1,0,0],'hanim'),
-  'happy':   () => hand([0,1,1,0,0],'hanim'),
-  'triste':  () => hand([0,0,0,0,0],'hanim'),
-  'sad':     () => hand([0,0,0,0,0],'hanim'),
-  'hoy':     () => peace(),
-  'today':   () => peace(),
-  'mañana':  () => pointIndex('hanim'),
-  'tomorrow':() => pointIndex('hanim'),
-  'dinero':  () => ok(),
-  'money':   () => ok(),
-  'grande':  () => openHand('hshake'),
-  'big':     () => openHand('hshake'),
-  'pequeño': () => hand([1,1,0,0,0],'hanim'),
-  'small':   () => hand([1,1,0,0,0],'hanim'),
+function poseHola(){
+  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    <g class="aw" style="transform-origin:195px 185px">
+      ${armR(195,185,230,95)}${handOpen(228,88,-10)}
+    </g></g>`;
+}
+
+function poseGracias(){
+  return `<g class="ab">${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,205,148)}${handFinger(200,142,[0,1,1,1,0],-20)}
+    <path d="M185 148 Q195 138 208 142" stroke="rgba(124,106,247,0.45)" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+  </g>`;
+}
+
+function poseSi(){
+  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    <g class="an" style="transform-origin:228px 215px">
+      ${armR(195,185,228,215)}
+      <rect x="215" y="214" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
+      <rect x="218" y="203" width="8" height="14" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+      <rect x="228" y="201" width="8" height="14" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    </g></g>`;
+}
+
+function poseNo(){
+  return `<g>${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    <g class="aw" style="transform-origin:228px 195px">
+      ${armR(195,185,228,195)}${handFinger(228,200,[0,1,0,0,0])}
+    </g></g>`;
+}
+
+function poseAmor(){
+  return `<g class="ab">${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,232,205)}${handFinger(232,212,[1,1,0,0,1])}
+    <path d="M146 96 Q150 90 154 96 Q158 88 160 96 Q160 104 150 110 Q140 104 140 96 Q142 88 146 96Z" fill="#e05090" opacity="0.65"/>
+  </g>`;
+}
+
+function poseBien(){
+  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    <g class="an" style="transform-origin:228px 210px">
+      ${armR(195,185,228,216)}
+      <rect x="216" y="215" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
+      <rect x="218" y="204" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
+      <rect x="228" y="202" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
+      <rect x="211" y="198" width="11" height="20" rx="5.5" fill="${SK}" stroke="${OT}" stroke-width="1" transform="rotate(-15,216,208)"/>
+    </g></g>`;
+}
+
+function poseMal(){
+  return `<g class="ab">${head('sad')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,228,216)}
+    <rect x="216" y="215" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
+    <rect x="218" y="204" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="228" y="202" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
+    <rect x="211" y="232" width="11" height="20" rx="5.5" fill="${SK}" stroke="${OT}" stroke-width="1" transform="rotate(15,216,242)"/>
+  </g>`;
+}
+
+function poseAyuda(){
+  return `<g class="ab">${head('')}${torso()}
+    ${armL(105,185,100,240)}<rect x="87" y="239" width="26" height="21" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
+    ${armR(195,185,200,240)}${handOpen(200,252)}
+  </g>`;
+}
+
+function poseComer(){
+  return `<g>${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    <g class="an" style="transform-origin:200px 165px">
+      ${armR(195,185,205,148)}
+      <rect x="192" y="132" width="26" height="21" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
+      <rect x="194" y="120" width="8" height="15" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+      <rect x="204" y="118" width="8" height="15" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
+    </g></g>`;
+}
+
+function poseDormir(){
+  return `<g class="as">${head('sad')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,210,148)}${handFinger(204,140,[0,1,1,1,0],-15)}
+    <path d="M129 118 Q136 122 143 118" stroke="${HR}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M157 118 Q164 122 171 118" stroke="${HR}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <text x="190" y="88" fill="#7c6af7" font-size="20" font-family="sans-serif" font-weight="700" opacity="0.8">z</text>
+    <text x="203" y="72" fill="#7c6af7" font-size="14" font-family="sans-serif" font-weight="700" opacity="0.55">z</text>
+  </g>`;
+}
+
+function poseAgua(){
+  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,232,205)}${handFinger(232,212,[1,1,1,0,0])}
+    <path d="M130 310 Q142 303 154 310 Q166 317 178 310" stroke="#378ADD" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M118 324 Q132 317 148 324 Q164 331 178 324" stroke="#378ADD" stroke-width="1.2" fill="none" opacity="0.35"/>
+  </g>`;
+}
+
+function poseTu(){
+  return `<g class="as">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,265,190)}${handFinger(268,192,[0,1,0,0,0],20)}
+    <path d="M278 191 L295 186" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 2"/>
+    <polygon points="295,183 295,189 301,186" fill="#7c6af7"/>
+  </g>`;
+}
+
+function poseYo(){
+  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,185,200)}${handFinger(180,205,[0,1,0,0,0],-10)}
+    <path d="M174 207 L163 213" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 2"/>
+    <polygon points="160,210 160,216 166,213" fill="#7c6af7"/>
+  </g>`;
+}
+
+function poseLetter(ext){
+  return `<g class="as">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
+    ${armR(195,185,232,215)}${handFinger(232,222,ext)}
+  </g>`;
+}
+
+/* ─── DICCIONARIO LSC COMPLETO ─── */
+const SIGNS={
+  'hola':poseHola,'hello':poseHola,'buenos':poseHola,'buenas':poseHola,'bienvenido':poseHola,'bienvenida':poseHola,'adiós':poseHola,'chao':poseHola,'bye':poseHola,'hasta':poseHola,
+  'gracias':poseGracias,'thank':poseGracias,'thanks':poseGracias,'gracia':poseGracias,'permiso':poseGracias,'disculpe':poseGracias,'disculpa':poseGracias,'perdón':poseGracias,
+  'sí':poseSi,'si':poseSi,'yes':poseSi,'claro':poseSi,'correcto':poseSi,'exacto':poseSi,'dale':poseSi,'listo':poseSi,'afirmativo':poseSi,
+  'no':poseNo,'nada':poseNo,'nunca':poseNo,'jamás':poseNo,'negativo':poseNo,
+  'amor':poseAmor,'love':poseAmor,'quiero':poseAmor,'amar':poseAmor,'corazón':poseAmor,'te':poseAmor,
+  'feliz':poseBien,'happy':poseBien,'alegre':poseBien,'contento':poseBien,'bien':poseBien,'good':poseBien,'excelente':poseBien,'genial':poseBien,'super':poseBien,'ok':poseBien,'okay':poseBien,'perfecto':poseBien,
+  'triste':poseMal,'sad':poseMal,'mal':poseMal,'bad':poseMal,'enojado':poseMal,'enojada':poseMal,'molesto':poseMal,'cansado':poseMal,'cansada':poseMal,'fatal':poseMal,
+  'yo':poseYo,'me':poseYo,'mi':poseYo,
+  'tú':poseTu,'you':poseTu,'tu':poseTu,'él':poseTu,'ella':poseTu,
+  'agua':poseAgua,'water':poseAgua,'tomar':poseAgua,'beber':poseAgua,'sed':poseAgua,
+  'comer':poseComer,'eat':poseComer,'comida':poseComer,'hambre':poseComer,'food':poseComer,'almuerzo':poseComer,'desayuno':poseComer,'cena':poseComer,'lunch':poseComer,
+  'dormir':poseDormir,'sleep':poseDormir,'noche':poseDormir,'descansar':poseDormir,'cansado':poseDormir,
+  'ayuda':poseAyuda,'help':poseAyuda,'auxilio':poseAyuda,'socorro':poseAyuda,'emergencia':poseAyuda,'necesito':poseAyuda,'apoyo':poseAyuda,
+  'por':poseBien,'favor':poseBien,'please':poseBien,'bueno':poseBien,'buena':poseBien,'malo':poseMal,'mala':poseMal,
+  'uno':()=>poseLetter([0,1,0,0,0]),'dos':()=>poseLetter([0,1,1,0,0]),'tres':()=>poseLetter([0,1,1,1,0]),
+  'cuatro':()=>poseLetter([0,1,1,1,1]),'cinco':()=>poseLetter([1,1,1,1,1]),
+  'one':()=>poseLetter([0,1,0,0,0]),'two':()=>poseLetter([0,1,1,0,0]),'three':()=>poseLetter([0,1,1,1,0]),
 };
 
 /* Abecedario dactilológico */
-const ABC = {
-  a:[0,0,0,0,0], b:[0,1,1,1,1], c:[1,1,1,1,1], d:[0,1,0,0,0],
-  e:[0,0,0,0,0], f:[1,1,1,0,0], g:[0,1,0,0,0], h:[0,1,1,0,0],
-  i:[0,0,0,0,1], j:[0,0,0,0,1], k:[1,1,1,0,0], l:[1,1,0,0,0],
-  m:[0,0,0,0,0], n:[0,0,0,0,0], o:[1,1,1,1,1], p:[1,1,1,0,0],
-  q:[0,1,0,0,0], r:[0,1,1,0,0], s:[0,0,0,0,0], t:[0,0,0,0,0],
-  u:[0,1,1,0,0], v:[0,1,1,0,0], w:[0,1,1,1,0], x:[0,1,0,0,0],
-  y:[1,0,0,0,1], z:[0,1,0,0,0],
-  á:[0,0,0,0,0], é:[0,0,0,0,0], í:[0,0,0,0,1], ó:[1,1,1,1,1], ú:[0,1,1,0,0],
-  ñ:[0,0,0,0,0],
-};
+const ABC={a:[0,0,0,0,0],b:[0,1,1,1,1],c:[1,1,1,1,1],d:[0,1,0,0,0],e:[0,0,0,0,0],f:[1,1,1,0,0],g:[0,1,0,0,0],h:[0,1,1,0,0],i:[0,0,0,0,1],j:[0,0,0,0,1],k:[1,1,1,0,0],l:[1,1,0,0,0],m:[0,0,0,0,0],n:[0,0,0,0,0],o:[1,1,1,1,1],p:[1,1,1,0,0],q:[0,1,0,0,0],r:[0,1,1,0,0],s:[0,0,0,0,0],t:[0,0,0,0,0],u:[0,1,1,0,0],v:[0,1,1,0,0],w:[0,1,1,1,0],x:[0,1,0,0,0],y:[1,0,0,0,1],z:[0,1,0,0,0],á:[0,0,0,0,0],é:[0,0,0,0,0],í:[0,0,0,0,1],ó:[1,1,1,1,1],ú:[0,1,1,0,0],ñ:[0,0,0,0,0]};
 
-/* ══════════════════════════════════════════
-   MOTOR DE SEÑAS
-   ══════════════════════════════════════════ */
-const svg   = () => document.getElementById('handSvg');
-const wlbl  = () => document.getElementById('wlabel');
-const mtag  = () => document.getElementById('mtag');
-const lgrid = () => document.getElementById('lgrid');
+/* ─── PALABRAS QUE SE SALTAN ─── */
+const SKIP=new Set(['de','la','el','los','las','un','una','unos','unas','en','a','y','o','que','con','por','para','del','al','se','su','es','son','está','están','le','lo','nos','como','pero','más','ya','hay','fue','ser','estar','the','an','of','in','is','are','and','or','but','to','for','with','that','this','it']);
 
-let queue = [], animating = false;
+/* ─── MOTOR ─── */
+const avS=()=>document.getElementById('avatarSvg');
+let queue=[],animating=false;
 
-function showSign(word) {
-  const w = word.toLowerCase().replace(/[^a-záéíóúñ0-9]/g,'');
-  if (!w) return;
-
-  wlbl().classList.add('fade');
-  setTimeout(() => {
-    lgrid().innerHTML = '';
-    if (SIGNS[w]) {
-      svg().innerHTML = SIGNS[w]();
-      mtag().textContent = 'Seña directa';
+function showSign(word){
+  const raw=word.toLowerCase().replace(/[^a-záéíóúñ]/g,'');
+  if(!raw||raw.length<=1||SKIP.has(raw))return;
+  document.getElementById('wlabel').classList.add('fade');
+  setTimeout(()=>{
+    document.getElementById('lgrid').innerHTML='';
+    if(SIGNS[raw]){
+      avS().innerHTML=SIGNS[raw]();
+      document.getElementById('mtag').textContent='Seña LSC directa';
     } else {
-      mtag().textContent = 'Deletreo dactilológico';
-      fingerSpell(w);
+      document.getElementById('mtag').textContent='Deletreo dactilológico';
+      fingerSpell(raw);
     }
-    wlbl().innerHTML = `<span class="hl">${word.toUpperCase()}</span>`;
-    wlbl().classList.remove('fade');
-  }, 140);
+    document.getElementById('wlabel').innerHTML=`<span class="hl">${word.toUpperCase()}</span>`;
+    document.getElementById('wlabel').classList.remove('fade');
+  },130);
 }
 
-function fingerSpell(word) {
-  const letters = [...word].filter(c => ABC[c] !== undefined || ABC[c.toLowerCase()]);
-  lgrid().innerHTML = letters.map((l,i) =>
-    `<div class="lc" id="lc${i}">${l.toUpperCase()}</div>`
-  ).join('');
-
-  let i = 0;
-  const spd = Math.max(200, parseInt(document.getElementById('speed').value) * 0.38);
-  function next() {
-    if (i > 0) document.getElementById(`lc${i-1}`)?.classList.remove('on');
-    if (i >= letters.length) { svg().innerHTML = openHand('hanim'); return; }
+function fingerSpell(word){
+  const letters=[...word].filter(c=>ABC[c]);
+  if(!letters.length){avS().innerHTML=poseNeutral();return;}
+  document.getElementById('lgrid').innerHTML=letters.map((l,i)=>`<div class="lc" id="lc${i}">${l.toUpperCase()}</div>`).join('');
+  let i=0;
+  const spd=Math.max(140,parseInt(document.getElementById('speed').value)*0.30);
+  function next(){
+    if(i>0)document.getElementById(`lc${i-1}`)?.classList.remove('on');
+    if(i>=letters.length){avS().innerHTML=poseNeutral();return;}
     document.getElementById(`lc${i}`)?.classList.add('on');
-    const cfg = ABC[letters[i].toLowerCase()] || [1,1,1,1,1];
-    svg().innerHTML = hand(cfg, 'hanim');
-    i++; setTimeout(next, spd);
+    avS().innerHTML=poseLetter(ABC[letters[i].toLowerCase()]||[1,1,1,1,1]);
+    i++;setTimeout(next,spd);
   }
   next();
 }
 
-function enqueue(text) {
-  text.split(/\s+/).filter(w => w.length > 0).forEach(w => queue.push(w));
-  renderQ();
-  if (!animating) processQ();
+function enqueue(text){
+  text.split(/\s+/).filter(w=>w.length>0).forEach(w=>queue.push(w));
+  renderQ();if(!animating)processQ();
 }
 
-function processQ() {
-  if (!queue.length) { animating = false; return; }
-  animating = true;
-  const w = queue.shift();
-  showSign(w);
-  renderQ();
-  const spd = parseInt(document.getElementById('speed').value);
-  const dur = w.length > 5 ? spd * (w.length * 0.38) : spd;
-  setTimeout(processQ, Math.max(dur, 550));
+function processQ(){
+  if(!queue.length){animating=false;return;}
+  animating=true;
+  const w=queue.shift();
+  const raw=w.toLowerCase().replace(/[^a-záéíóúñ]/g,'');
+  if(SKIP.has(raw)){renderQ();setTimeout(processQ,60);return;}
+  showSign(w);renderQ();
+  const spd=parseInt(document.getElementById('speed').value);
+  const dur=SIGNS[raw]?spd:Math.max(spd*(raw.length*0.30),380);
+  setTimeout(processQ,Math.max(dur,380));
 }
 
-function renderQ() {
-  document.getElementById('wqueue').innerHTML =
-    queue.slice(0,16).map((w,i) =>
-      `<span class="qw ${i===0?'cur':''}">${w}</span>`
-    ).join('');
+function renderQ(){
+  document.getElementById('wq').innerHTML=queue.slice(0,16).map((w,i)=>`<span class="qw ${i===0?'cur':''}">${w}</span>`).join('');
 }
 
-/* ══════════════════════════════════════════
-   RECONOCIMIENTO DE VOZ
-   ══════════════════════════════════════════ */
-let rec = null, running = false, fullText = '';
-
-function startListening() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    alert('Usa Chrome o Edge — este navegador no soporta reconocimiento de voz.\n\nEn OBS el Browser Source usa Chromium, así que funcionará correctamente.');
-    return;
-  }
-  rec = new SR();
-  rec.lang = document.getElementById('langSel').value;
-  rec.continuous = true;
-  rec.interimResults = true;
-
-  rec.onstart = () => {
-    running = true;
-    document.getElementById('sdot').className = 'sdot pulse';
-    document.getElementById('stext').textContent = 'Escuchando...';
-    document.getElementById('btnStart').style.display = 'none';
-    document.getElementById('btnStop').style.display = 'flex';
+/* ─── VOZ ─── */
+let rec=null,running=false,fullTxt='';
+function startL(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome o Edge.');return;}
+  rec=new SR();rec.lang=document.getElementById('langSel').value;
+  rec.continuous=true;rec.interimResults=true;
+  rec.onstart=()=>{running=true;document.getElementById('sdot').className='sdot pulse';document.getElementById('stxt').textContent='Escuchando...';document.getElementById('btnS').style.display='none';document.getElementById('btnX').style.display='flex';};
+  rec.onresult=e=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;e.results[i].isFinal?(final+=t):(interim+=t);}
+    if(final){fullTxt+=final+' ';updT(false,'');enqueue(final);}else{updT(true,interim);}
   };
-
-  rec.onresult = e => {
-    let interim = '', final = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      e.results[i].isFinal ? (final += t) : (interim += t);
-    }
-    if (final) {
-      fullText += final + ' ';
-      updateT(false, '');
-      enqueue(final);
-    } else {
-      updateT(true, interim);
-    }
-  };
-
-  rec.onerror = e => {
-    if (e.error === 'no-speech') return;
-    document.getElementById('stext').textContent = 'Error: ' + e.error;
-    if (e.error === 'not-allowed') {
-      alert('Permiso de micrófono denegado.\n\nEn OBS: clic derecho en el Browser Source → "Interact" y acepta el permiso de micrófono que aparece.');
-    }
-  };
-
-  rec.onend = () => { if (running) rec.start(); };
+  rec.onerror=e=>{if(e.error==='no-speech')return;document.getElementById('stxt').textContent='Error: '+e.error;if(e.error==='not-allowed')alert('Permiso denegado. En OBS: clic derecho en Browser Source → Interact → acepta el micrófono.');};
+  rec.onend=()=>{if(running)rec.start();};
   rec.start();
 }
+function stopL(){running=false;rec?.stop();document.getElementById('sdot').className='sdot on';document.getElementById('stxt').textContent='Detenido';document.getElementById('btnS').style.display='flex';document.getElementById('btnX').style.display='none';}
+function updT(isInt,txt){const b=document.getElementById('tbox');b.innerHTML=fullTxt+(isInt?`<span class="live">${txt}</span>`:'');b.scrollTop=b.scrollHeight;}
 
-function stopListening() {
-  running = false;
-  rec?.stop();
-  document.getElementById('sdot').className = 'sdot on';
-  document.getElementById('stext').textContent = 'Detenido';
-  document.getElementById('btnStart').style.display = 'flex';
-  document.getElementById('btnStop').style.display = 'none';
-}
-
-function updateT(interim, itext) {
-  const box = document.getElementById('tbox');
-  box.innerHTML = fullText + (interim ? `<span class="live">${itext}</span>` : '');
-  box.scrollTop = box.scrollHeight;
-}
-
-/* ══════════════════════════════════════════
-   UTILS
-   ══════════════════════════════════════════ */
-const testWords = ['hola','gracias','amor','ayuda','sí','no','bien','trabajo','feliz'];
-let ti = 0;
-function testCycle() {
-  enqueue(testWords[ti++ % testWords.length]);
-}
-
-function toggleOverlay() {
-  document.body.classList.toggle('overlay');
-}
-
-/* URL badge */
-document.getElementById('currentUrl').textContent = window.location.href.split('?')[0];
-
-/* Param overlay automático */
-if (new URLSearchParams(window.location.search).get('overlay') === '1') {
-  document.body.classList.add('overlay');
-}
-
-/* Mano inicial */
-svg().innerHTML = openHand('hanim');
+/* ─── UTILS ─── */
+const TEST=['hola','gracias','amor','ayuda','sí','no','bien','agua','comer','yo','tú','dormir'];
+let ti=0;
+function testCycle(){enqueue(TEST[ti++%TEST.length]);}
+function toggleOverlay(){document.body.classList.toggle('overlay');}
+document.getElementById('ushow').textContent=window.location.href.split('?')[0];
+if(new URLSearchParams(window.location.search).get('overlay')==='1')document.body.classList.add('overlay');
+avS().innerHTML=poseNeutral();
 </script>
 </body>
 </html>
