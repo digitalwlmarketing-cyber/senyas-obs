@@ -3,447 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Señas OBS — LSC</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<title>Señas OBS Pro — LSC Colombia</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09090f;--surf:#111119;--bord:rgba(255,255,255,0.07);--acc:#7c6af7;--grn:#3ecf8e;--text:#f0f0f8;--mut:rgba(240,240,248,0.42);--S:#f5c9a0;--S2:#e8b080;--S3:#d49060;--OUT:#b87030;--SH:#2a3a8a;--SH2:#1e2d6e;--HR:#2c1a0a;}
+:root{--bg:#09090f;--surf:#111119;--bord:rgba(255,255,255,0.07);--acc:#7c6af7;--grn:#3ecf8e;--text:#f0f0f8;--mut:rgba(240,240,248,0.42);--S:#f5c9a0;--S2:#e8b080;--OT:#b87030;--SH:#2a3a8a;--HR:#2c1a0a;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
 body.overlay{background:transparent!important;}
-body.overlay .ui-panel,body.overlay header,body.overlay footer{display:none!important;}
+body.overlay .ui-panel, body.overlay header{display:none!important;}
 body.overlay .stage{grid-template-columns:1fr!important;}
-body.overlay .sign-display{background:transparent!important;min-height:100vh;justify-content:center;}
-body.overlay .wlabel{font-size:72px!important;text-shadow:0 3px 28px rgba(0,0,0,0.95);}
-.app{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;}
-header{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;border-bottom:1px solid var(--bord);background:var(--surf);}
-.logo{font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px;}
-.ldot{width:9px;height:9px;border-radius:50%;background:var(--acc);}
-.srow-hdr{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);}
-.sdot{width:7px;height:7px;border-radius:50%;background:#333;transition:all .3s;flex-shrink:0;}
-.sdot.on{background:var(--grn);box-shadow:0 0 6px var(--grn);}
-.sdot.pulse{background:var(--grn);animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-.stage{display:grid;grid-template-columns:1fr 290px;}
-.sign-display{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;min-height:480px;background:#0b0b12;}
-.avatar-wrap{width:300px;height:360px;}
-#avatarSvg{display:block;width:300px;height:360px;}
-.wlabel{margin-top:16px;font-size:48px;font-weight:700;letter-spacing:-2px;text-align:center;min-height:60px;transition:opacity .15s;}
-.wlabel.fade{opacity:0;}
-.wlabel .hl{color:var(--acc);}
-.mtag{margin-top:5px;font-size:10px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;font-weight:600;}
-.lgrid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:12px;max-width:280px;}
-.lc{width:32px;height:32px;border:1px solid var(--bord);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--mut);background:var(--surf);transition:all .1s;}
-.lc.on{background:var(--acc);color:#fff;border-color:var(--acc);transform:scale(1.12);}
-.ui-panel{border-left:1px solid var(--bord);background:var(--surf);display:flex;flex-direction:column;overflow:hidden;}
-.psect{padding:16px;border-bottom:1px solid var(--bord);}
-.plbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px;font-weight:600;}
-button{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px 14px;border-radius:7px;border:1px solid var(--bord);background:transparent;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;margin-bottom:6px;}
-button:hover{background:rgba(255,255,255,0.05);}
-button:active{transform:scale(0.98);}
-button.prim{background:var(--acc);border-color:var(--acc);color:#fff;}
-button.prim:hover{background:#6a59e0;}
-button.dng{border-color:rgba(220,70,70,.35);color:#e05050;}
-button.dng:hover{background:rgba(220,70,70,.08);}
-.tbox{padding:12px 16px;font-size:12px;line-height:1.8;color:var(--mut);max-height:140px;overflow-y:auto;flex:1;}
-.tbox .live{color:var(--grn);}
-.wq{display:flex;flex-wrap:wrap;gap:4px;padding:10px 16px;}
-.qw{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bord);color:var(--mut);}
-.qw.cur{background:var(--acc);border-color:var(--acc);color:#fff;}
-select,input[type=range]{background:var(--bg);border:1px solid var(--bord);color:var(--text);border-radius:5px;padding:4px 7px;font-family:'Space Grotesk',sans-serif;font-size:12px;}
-.srow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:12px;}
-.srow label{color:var(--mut);}
-.mbanner{background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.25);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--text);line-height:1.6;margin-bottom:8px;}
-.mbanner strong{color:var(--acc);}
-footer{padding:9px 22px;border-top:1px solid var(--bord);background:var(--surf);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--mut);}
-.ubadge{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:3px 9px;border-radius:4px;border:1px solid var(--bord);color:var(--grn);font-size:10px;}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes wave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-20deg)}75%{transform:rotate(20deg)}}
-@keyframes nod{0%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}70%{transform:translateY(2px)}}
-@keyframes appear{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-.ab{animation:appear .25s ease-out,bob 2s ease-in-out .25s infinite;}
-.aw{animation:appear .25s ease-out,wave .8s ease-in-out .25s infinite;}
-.an{animation:appear .25s ease-out,nod .55s ease-in-out .25s infinite;}
-.as{animation:appear .3s ease-out;}
+body.overlay .wlabel{font-size:72px!important; text-shadow: 0 4px 15px rgba(0,0,0,0.8);}
+
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--bord);background:var(--surf);}
+.stage{display:grid;grid-template-columns:1fr 300px;height:100%;}
+
+.display-area{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0b0b12;position:relative;}
+.canvas-container{width:400px;height:400px;display:flex;align-items:center;justify-content:center;transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);}
+svg{width:100%;height:100%;filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));}
+
+.mode-avatar .canvas-container { transform: scale(1); }
+.mode-hand .canvas-container { transform: scale(1.4) translateY(20px); }
+
+.wlabel{margin-top:10px;font-size:48px;font-weight:700;letter-spacing:-2px;text-align:center;}
+.mtag{font-size:11px;color:var(--acc);text-transform:uppercase;letter-spacing:2px;margin-bottom:15px;font-weight:700;}
+
+.ui-panel{background:var(--surf);border-left:1px solid var(--bord);padding:20px;display:flex;flex-direction:column;gap:15px;}
+.tbox{background:var(--bg);border:1px solid var(--bord);padding:15px;border-radius:10px;font-size:13px;height:150px;overflow-y:auto;color:var(--mut);line-height:1.6;}
+.live{color:var(--grn);font-weight:700;}
+
+button{width:100%;padding:12px;border-radius:8px;border:none;background:var(--acc);color:white;font-weight:700;cursor:pointer;transition:0.2s;}
+button.sec{background:rgba(255,255,255,0.05);border:1px solid var(--bord);margin-top:5px;}
+
+.listening-dot{width:10px;height:10px;background:var(--grn);border-radius:50%;display:inline-block;margin-right:8px;}
+.active-mic .listening-dot{animation:pulse 1s infinite;box-shadow:0 0 10px var(--grn);}
+@keyframes pulse{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
 </style>
 </head>
 <body>
+
 <div class="app">
-<header>
-  <div class="logo"><div class="ldot"></div>Señas OBS — LSC Colombia</div>
-  <div class="srow-hdr"><div class="sdot" id="sdot"></div><span id="stxt">Detenido</span></div>
-</header>
-<div class="stage">
-  <div class="sign-display">
-    <div class="avatar-wrap"><svg id="avatarSvg" viewBox="0 0 300 360"></svg></div>
-    <div class="wlabel" id="wlabel"><span class="hl">Listo</span></div>
-    <div class="mtag" id="mtag">Esperando audio...</div>
-    <div class="lgrid" id="lgrid"></div>
-  </div>
-  <div class="ui-panel">
-    <div class="psect">
-      <div class="plbl">Micrófono</div>
-      <div class="mbanner">Presiona <strong>Iniciar</strong> y acepta el permiso de micrófono.</div>
-      <button class="prim" id="btnS" onclick="startL()">&#9679; Iniciar escucha</button>
-      <button class="dng" id="btnX" onclick="stopL()" style="display:none">&#9632; Detener</button>
-      <button onclick="testCycle()">Probar palabras</button>
-      <button onclick="toggleOverlay()">Vista overlay OBS</button>
-    </div>
-    <div class="psect">
-      <div class="plbl">Ajustes</div>
-      <div class="srow"><label>Idioma</label>
-        <select id="langSel">
-          <option value="es-CO">Español Colombia</option>
-          <option value="es-ES">Español España</option>
-          <option value="en-US">English</option>
-        </select>
+  <header>
+    <div style="font-weight:700;">INTÉRPRETE LSC <span style="color:var(--acc)">PRO</span></div>
+    <div id="status"><span class="listening-dot"></span><span id="stxt">Micrófono Apagado</span></div>
+  </header>
+
+  <div class="stage">
+    <div class="display-area" id="mainDisplay">
+      <div class="mtag" id="modeTag">SISTEMA LISTO</div>
+      <div class="canvas-container">
+        <svg id="svg" viewBox="0 0 300 360"></svg>
       </div>
-      <div class="srow"><label>Velocidad</label>
-        <input type="range" id="speed" min="200" max="1400" value="650" step="50" style="width:85px">
-      </div>
-      <div class="srow"><label>Texto</label>
-        <input type="range" id="tsize" min="24" max="96" value="48" step="2" style="width:85px"
-          oninput="document.getElementById('wlabel').style.fontSize=this.value+'px'">
-      </div>
+      <div class="wlabel" id="wlabel">---</div>
     </div>
-    <div class="psect"><div class="plbl">Transcripción</div>
-      <div class="tbox" id="tbox"><span style="opacity:.3;font-style:italic">El audio aparecerá aquí...</span></div>
-    </div>
-    <div class="psect" style="border:none"><div class="plbl">Cola de palabras</div>
-      <div class="wq" id="wq"></div>
+
+    <div class="ui-panel">
+      <button id="btnStart" onclick="startRecognition()">Iniciar Micrófono</button>
+      <button id="btnStop" onclick="stopRecognition()" style="display:none; background:#e05050">Detener</button>
+      <button class="sec" onclick="toggleOverlay()">Vista Transparente OBS</button>
+      
+      <p style="font-size:11px; color:var(--mut); margin-top:15px">TRANSCRIPCIÓN</p>
+      <div class="tbox" id="tbox"></div>
+      
+      <div style="font-size:10px; color:var(--mut); margin-top:auto">
+        Modos: Legal, Religioso, Comunitario
+      </div>
     </div>
   </div>
 </div>
-<footer>
-  <span>OBS Browser Source — usa tu URL de GitHub Pages con HTTPS</span>
-  <span class="ubadge" id="ushow">...</span>
-</footer>
-</div>
+
 <script>
-/* ─── COLORES ─── */
-const SK='#f5c9a0',SK2='#e8b080',SK3='#d49060',OT='#b87030';
-const SH='#2a3a8a',SH2='#1e2d6e',HR='#2c1a0a';
+const svg = document.getElementById('svg');
+const wlabel = document.getElementById('wlabel');
+const modeTag = document.getElementById('modeTag');
+const mainDisplay = document.getElementById('mainDisplay');
 
-/* ─── PARTES BASE ─── */
-function head(expr){
-  const mouth = expr==='happy'
-    ? `<path d="M138 145 Q150 154 162 145" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
-    : expr==='sad'
-    ? `<path d="M138 150 Q150 143 162 150" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
-    : `<path d="M140 146 Q150 150 160 146" stroke="${OT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
-  return `
-    <ellipse cx="150" cy="120" rx="42" ry="46" fill="${SK}" stroke="${OT}" stroke-width="1.5"/>
-    <ellipse cx="150" cy="82" rx="42" ry="22" fill="${HR}"/>
-    <rect x="108" y="80" width="14" height="30" rx="7" fill="${HR}"/>
-    <rect x="178" y="80" width="14" height="30" rx="7" fill="${HR}"/>
-    <ellipse cx="136" cy="118" rx="7" ry="8" fill="white" stroke="${OT}" stroke-width="0.8"/>
-    <ellipse cx="164" cy="118" rx="7" ry="8" fill="white" stroke="${OT}" stroke-width="0.8"/>
-    <circle cx="137" cy="119" r="4" fill="${HR}"/>
-    <circle cx="165" cy="119" r="4" fill="${HR}"/>
-    <circle cx="138" cy="117" r="1.5" fill="white"/>
-    <circle cx="166" cy="117" r="1.5" fill="white"/>
-    <path d="M129 108 Q136 104 143 108" stroke="${HR}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M157 108 Q164 104 171 108" stroke="${HR}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M150 122 Q146 132 148 136 Q150 138 152 136 Q154 132 150 122" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
-    ${mouth}`;
-}
-
-function torso(){
-  return `
-    <rect x="105" y="175" width="90" height="105" rx="12" fill="${SH}" stroke="${SH2}" stroke-width="1.5"/>
-    <rect x="136" y="155" width="28" height="28" rx="6" fill="${SK}" stroke="${OT}" stroke-width="1"/>`;
-}
-
-function armL(x1,y1,x2,y2){
-  return `
-    <path d="M${x1} ${y1} Q${(x1+x2)/2-10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH}" stroke-width="22" fill="none" stroke-linecap="round"/>
-    <path d="M${x1} ${y1} Q${(x1+x2)/2-10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH2}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
-}
-
-function armR(x1,y1,x2,y2){
-  return `
-    <path d="M${x1} ${y1} Q${(x1+x2)/2+10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH}" stroke-width="22" fill="none" stroke-linecap="round"/>
-    <path d="M${x1} ${y1} Q${(x1+x2)/2+10} ${(y1+y2)/2} ${x2} ${y2}" stroke="${SH2}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
-}
-
-/* mano relajada (puño suave) */
-function handRelax(cx,cy,r=1){
-  return `<ellipse cx="${cx}" cy="${cy}" rx="${16*r}" ry="${13*r}" fill="${SK}" stroke="${OT}" stroke-width="1"/>
-    <ellipse cx="${cx-5*r}" cy="${cy-8*r}" rx="${6*r}" ry="${10*r}" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <ellipse cx="${cx+3*r}" cy="${cy-9*r}" rx="${5*r}" ry="${9*r}" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <ellipse cx="${cx-12*r}" cy="${cy-3*r}" rx="${5*r}" ry="${8*r}" fill="${SK}" stroke="${OT}" stroke-width="0.7"/>`;
-}
-
-/* mano abierta */
-function handOpen(cx,cy,angle=0){
-  const g=`rotate(${angle},${cx},${cy})`;
-  return `<g transform="${g}">
-    <ellipse cx="${cx}" cy="${cy}" rx="16" ry="13" fill="${SK}" stroke="${OT}" stroke-width="1"/>
-    <rect x="${cx-18}" y="${cy-28}" width="10" height="20" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="${cx-7}" y="${cy-30}" width="10" height="23" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="${cx+4}" y="${cy-30}" width="10" height="23" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="${cx+14}" y="${cy-28}" width="9" height="20" rx="4.5" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="${cx-24}" y="${cy-18}" width="10" height="14" rx="5" fill="${SK}" stroke="${OT}" stroke-width="0.8" transform="rotate(-30,${cx-19},${cy-11})"/>
-  </g>`;
-}
-
-/* mano con dedos específicos extendidos */
-function handFinger(cx,cy,ext,angle=0){
-  const fingers=[
-    {dx:-16,dy:-24,w:10,h:22,ra:-15},
-    {dx:-6, dy:-26,w:10,h:25,ra:-5},
-    {dx:4,  dy:-26,w:10,h:25,ra:0},
-    {dx:14, dy:-24,w:9, h:22,ra:5},
-    {dx:22, dy:-20,w:8, h:18,ra:12},
-  ];
-  const g=`rotate(${angle},${cx},${cy})`;
-  let s=`<g transform="${g}"><ellipse cx="${cx}" cy="${cy}" rx="18" ry="13" fill="${SK}" stroke="${OT}" stroke-width="1"/>`;
-  fingers.forEach((f,i)=>{
-    const fx=cx+f.dx, fy=cy+f.dy;
-    if(ext[i]){
-      s+=`<rect x="${fx-f.w/2}" y="${fy}" width="${f.w}" height="${f.h}" rx="${f.w/2}" fill="${SK}" stroke="${OT}" stroke-width="0.9" transform="rotate(${f.ra},${fx},${cy})"/>`;
-    } else {
-      s+=`<ellipse cx="${fx}" cy="${cy-4}" rx="${f.w/2+1}" ry="5" fill="${SK2}" stroke="${OT}" stroke-width="0.7"/>`;
-    }
-  });
-  s+=`</g>`;
-  return s;
-}
-
-/* ─── POSES COMPLETAS ─── */
-function poseNeutral(){
-  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}${armR(195,185,225,248)}${handRelax(228,256)}</g>`;
-}
-
-function poseHola(){
-  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    <g class="aw" style="transform-origin:195px 185px">
-      ${armR(195,185,230,95)}${handOpen(228,88,-10)}
-    </g></g>`;
-}
-
-function poseGracias(){
-  return `<g class="ab">${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,205,148)}${handFinger(200,142,[0,1,1,1,0],-20)}
-    <path d="M185 148 Q195 138 208 142" stroke="rgba(124,106,247,0.45)" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
-  </g>`;
-}
-
-function poseSi(){
-  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    <g class="an" style="transform-origin:228px 215px">
-      ${armR(195,185,228,215)}
-      <rect x="215" y="214" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
-      <rect x="218" y="203" width="8" height="14" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-      <rect x="228" y="201" width="8" height="14" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    </g></g>`;
-}
-
-function poseNo(){
-  return `<g>${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    <g class="aw" style="transform-origin:228px 195px">
-      ${armR(195,185,228,195)}${handFinger(228,200,[0,1,0,0,0])}
-    </g></g>`;
-}
-
-function poseAmor(){
-  return `<g class="ab">${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,232,205)}${handFinger(232,212,[1,1,0,0,1])}
-    <path d="M146 96 Q150 90 154 96 Q158 88 160 96 Q160 104 150 110 Q140 104 140 96 Q142 88 146 96Z" fill="#e05090" opacity="0.65"/>
-  </g>`;
-}
-
-function poseBien(){
-  return `<g>${head('happy')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    <g class="an" style="transform-origin:228px 210px">
-      ${armR(195,185,228,216)}
-      <rect x="216" y="215" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
-      <rect x="218" y="204" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
-      <rect x="228" y="202" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
-      <rect x="211" y="198" width="11" height="20" rx="5.5" fill="${SK}" stroke="${OT}" stroke-width="1" transform="rotate(-15,216,208)"/>
-    </g></g>`;
-}
-
-function poseMal(){
-  return `<g class="ab">${head('sad')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,228,216)}
-    <rect x="216" y="215" width="26" height="22" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
-    <rect x="218" y="204" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="228" y="202" width="8" height="14" rx="4" fill="${SK2}" stroke="${OT}" stroke-width="0.8"/>
-    <rect x="211" y="232" width="11" height="20" rx="5.5" fill="${SK}" stroke="${OT}" stroke-width="1" transform="rotate(15,216,242)"/>
-  </g>`;
-}
-
-function poseAyuda(){
-  return `<g class="ab">${head('')}${torso()}
-    ${armL(105,185,100,240)}<rect x="87" y="239" width="26" height="21" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
-    ${armR(195,185,200,240)}${handOpen(200,252)}
-  </g>`;
-}
-
-function poseComer(){
-  return `<g>${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    <g class="an" style="transform-origin:200px 165px">
-      ${armR(195,185,205,148)}
-      <rect x="192" y="132" width="26" height="21" rx="7" fill="${SK}" stroke="${OT}" stroke-width="1.2"/>
-      <rect x="194" y="120" width="8" height="15" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-      <rect x="204" y="118" width="8" height="15" rx="4" fill="${SK}" stroke="${OT}" stroke-width="0.8"/>
-    </g></g>`;
-}
-
-function poseDormir(){
-  return `<g class="as">${head('sad')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,210,148)}${handFinger(204,140,[0,1,1,1,0],-15)}
-    <path d="M129 118 Q136 122 143 118" stroke="${HR}" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M157 118 Q164 122 171 118" stroke="${HR}" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <text x="190" y="88" fill="#7c6af7" font-size="20" font-family="sans-serif" font-weight="700" opacity="0.8">z</text>
-    <text x="203" y="72" fill="#7c6af7" font-size="14" font-family="sans-serif" font-weight="700" opacity="0.55">z</text>
-  </g>`;
-}
-
-function poseAgua(){
-  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,232,205)}${handFinger(232,212,[1,1,1,0,0])}
-    <path d="M130 310 Q142 303 154 310 Q166 317 178 310" stroke="#378ADD" stroke-width="1.5" fill="none" opacity="0.5"/>
-    <path d="M118 324 Q132 317 148 324 Q164 331 178 324" stroke="#378ADD" stroke-width="1.2" fill="none" opacity="0.35"/>
-  </g>`;
-}
-
-function poseTu(){
-  return `<g class="as">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,265,190)}${handFinger(268,192,[0,1,0,0,0],20)}
-    <path d="M278 191 L295 186" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 2"/>
-    <polygon points="295,183 295,189 301,186" fill="#7c6af7"/>
-  </g>`;
-}
-
-function poseYo(){
-  return `<g class="ab">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,185,200)}${handFinger(180,205,[0,1,0,0,0],-10)}
-    <path d="M174 207 L163 213" stroke="#7c6af7" stroke-width="2" stroke-dasharray="3 2"/>
-    <polygon points="160,210 160,216 166,213" fill="#7c6af7"/>
-  </g>`;
-}
-
-function poseLetter(ext){
-  return `<g class="as">${head('')}${torso()}${armL(105,185,75,248)}${handRelax(72,256)}
-    ${armR(195,185,232,215)}${handFinger(232,222,ext)}
-  </g>`;
-}
-
-/* ─── DICCIONARIO LSC COMPLETO ─── */
-const SIGNS={
-  'hola':poseHola,'hello':poseHola,'buenos':poseHola,'buenas':poseHola,'bienvenido':poseHola,'bienvenida':poseHola,'adiós':poseHola,'chao':poseHola,'bye':poseHola,'hasta':poseHola,
-  'gracias':poseGracias,'thank':poseGracias,'thanks':poseGracias,'gracia':poseGracias,'permiso':poseGracias,'disculpe':poseGracias,'disculpa':poseGracias,'perdón':poseGracias,
-  'sí':poseSi,'si':poseSi,'yes':poseSi,'claro':poseSi,'correcto':poseSi,'exacto':poseSi,'dale':poseSi,'listo':poseSi,'afirmativo':poseSi,
-  'no':poseNo,'nada':poseNo,'nunca':poseNo,'jamás':poseNo,'negativo':poseNo,
-  'amor':poseAmor,'love':poseAmor,'quiero':poseAmor,'amar':poseAmor,'corazón':poseAmor,'te':poseAmor,
-  'feliz':poseBien,'happy':poseBien,'alegre':poseBien,'contento':poseBien,'bien':poseBien,'good':poseBien,'excelente':poseBien,'genial':poseBien,'super':poseBien,'ok':poseBien,'okay':poseBien,'perfecto':poseBien,
-  'triste':poseMal,'sad':poseMal,'mal':poseMal,'bad':poseMal,'enojado':poseMal,'enojada':poseMal,'molesto':poseMal,'cansado':poseMal,'cansada':poseMal,'fatal':poseMal,
-  'yo':poseYo,'me':poseYo,'mi':poseYo,
-  'tú':poseTu,'you':poseTu,'tu':poseTu,'él':poseTu,'ella':poseTu,
-  'agua':poseAgua,'water':poseAgua,'tomar':poseAgua,'beber':poseAgua,'sed':poseAgua,
-  'comer':poseComer,'eat':poseComer,'comida':poseComer,'hambre':poseComer,'food':poseComer,'almuerzo':poseComer,'desayuno':poseComer,'cena':poseComer,'lunch':poseComer,
-  'dormir':poseDormir,'sleep':poseDormir,'noche':poseDormir,'descansar':poseDormir,'cansado':poseDormir,
-  'ayuda':poseAyuda,'help':poseAyuda,'auxilio':poseAyuda,'socorro':poseAyuda,'emergencia':poseAyuda,'necesito':poseAyuda,'apoyo':poseAyuda,
-  'por':poseBien,'favor':poseBien,'please':poseBien,'bueno':poseBien,'buena':poseBien,'malo':poseMal,'mala':poseMal,
-  'uno':()=>poseLetter([0,1,0,0,0]),'dos':()=>poseLetter([0,1,1,0,0]),'tres':()=>poseLetter([0,1,1,1,0]),
-  'cuatro':()=>poseLetter([0,1,1,1,1]),'cinco':()=>poseLetter([1,1,1,1,1]),
-  'one':()=>poseLetter([0,1,0,0,0]),'two':()=>poseLetter([0,1,1,0,0]),'three':()=>poseLetter([0,1,1,1,0]),
+/* DICCIONARIO AMPLIADO: LEGAL, RELIGIOSO Y COMÚN */
+const POSES = {
+    // RELIGIOSO
+    'dios': () => avatarPose('happy', 150, 60, true, [0,1,0,0,0]),
+    'jesus': () => avatarPose('happy', 150, 150, false, 'pray'),
+    'iglesia': () => avatarPose('neutral', 150, 140, false, 'roof'),
+    'amen': () => avatarPose('happy', 150, 180, false, 'pray'),
+    
+    // DERECHO / POLÍTICO
+    'derecho': () => avatarPose('neutral', 200, 140, false, 'write'),
+    'peticion': () => avatarPose('neutral', 180, 220, true, 'write'),
+    'concejo': () => avatarPose('neutral', 150, 200, false, 'group'),
+    'bucaramanga': () => avatarPose('happy', 220, 200, true, [0,1,1,0,0]), // Seña representativa
+    'plenaria': () => avatarPose('neutral', 150, 210, true, 'group'),
+    'ley': () => avatarPose('neutral', 200, 150, false, [0,1,1,1,1]),
+    
+    // COMÚN
+    'casa': () => avatarPose('neutral', 150, 140, false, 'roof'),
+    'hola': () => avatarPose('happy', 230, 95, true),
+    'gracias': () => avatarPose('happy', 205, 148, false, [0,1,1,1,0]),
+    'si': () => avatarPose('happy', 228, 215, true),
+    'no': () => avatarPose('neutral', 228, 195, true, [0,1,0,0,0])
 };
 
-/* Abecedario dactilológico */
-const ABC={a:[0,0,0,0,0],b:[0,1,1,1,1],c:[1,1,1,1,1],d:[0,1,0,0,0],e:[0,0,0,0,0],f:[1,1,1,0,0],g:[0,1,0,0,0],h:[0,1,1,0,0],i:[0,0,0,0,1],j:[0,0,0,0,1],k:[1,1,1,0,0],l:[1,1,0,0,0],m:[0,0,0,0,0],n:[0,0,0,0,0],o:[1,1,1,1,1],p:[1,1,1,0,0],q:[0,1,0,0,0],r:[0,1,1,0,0],s:[0,0,0,0,0],t:[0,0,0,0,0],u:[0,1,1,0,0],v:[0,1,1,0,0],w:[0,1,1,1,0],x:[0,1,0,0,0],y:[1,0,0,0,1],z:[0,1,0,0,0],á:[0,0,0,0,0],é:[0,0,0,0,0],í:[0,0,0,0,1],ó:[1,1,1,1,1],ú:[0,1,1,0,0],ñ:[0,0,0,0,0]};
+const ABC = {
+    a:[0,0,0,0,0], b:[0,1,1,1,1], c:[1,1,1,1,1], d:[0,1,0,0,0], e:[0,0,0,0,0],
+    f:[1,1,1,0,0], g:[0,1,0,0,0], h:[0,1,1,0,0], i:[0,0,0,0,1], j:[0,0,0,0,1],
+    k:[1,1,1,0,0], l:[1,1,0,0,0], m:[0,0,0,0,0], n:[0,0,0,0,0], o:[1,1,1,1,1],
+    p:[1,1,1,0,0], q:[0,1,0,0,0], r:[0,1,1,0,0], s:[0,0,0,0,0], t:[0,0,0,0,0],
+    u:[0,1,1,0,0], v:[0,1,1,0,0], w:[0,1,1,1,0], x:[0,1,0,0,0], y:[1,0,0,0,1], z:[0,1,0,0,0]
+};
 
-/* ─── PALABRAS QUE SE SALTAN ─── */
-const SKIP=new Set(['de','la','el','los','las','un','una','unos','unas','en','a','y','o','que','con','por','para','del','al','se','su','es','son','está','están','le','lo','nos','como','pero','más','ya','hay','fue','ser','estar','the','an','of','in','is','are','and','or','but','to','for','with','that','this','it']);
-
-/* ─── MOTOR ─── */
-const avS=()=>document.getElementById('avatarSvg');
-let queue=[],animating=false;
-
-function showSign(word){
-  const raw=word.toLowerCase().replace(/[^a-záéíóúñ]/g,'');
-  if(!raw||raw.length<=1||SKIP.has(raw))return;
-  document.getElementById('wlabel').classList.add('fade');
-  setTimeout(()=>{
-    document.getElementById('lgrid').innerHTML='';
-    if(SIGNS[raw]){
-      avS().innerHTML=SIGNS[raw]();
-      document.getElementById('mtag').textContent='Seña LSC directa';
+function avatarPose(face, hx, hy, anim, fingers = 'open') {
+    let handContent = '';
+    if(fingers === 'pray') {
+        handContent = `<path d="M140 180 L150 140 L160 180 Z" fill="var(--S)" stroke="var(--OT)"/>`;
+    } else if (fingers === 'roof') {
+        handContent = `<path d="M110 160 L150 120 L190 160" stroke="var(--S)" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+    } else if (fingers === 'write') {
+        handContent = `<circle cx="${hx}" cy="${hy}" r="12" fill="var(--S)" stroke="var(--OT)"/><line x1="${hx}" y1="${hy}" x2="${hx+10}" y2="${hy-15}" stroke="var(--text)" stroke-width="2"/>`;
+    } else if (fingers === 'group') {
+        handContent = `<circle cx="130" cy="220" r="10" fill="var(--S)"/><circle cx="150" cy="220" r="10" fill="var(--S)"/><circle cx="170" cy="220" r="10" fill="var(--S)"/>`;
+    } else if (Array.isArray(fingers)) {
+        handContent = drawHand(hx, hy, fingers);
     } else {
-      document.getElementById('mtag').textContent='Deletreo dactilológico';
-      fingerSpell(raw);
+        handContent = drawHand(hx, hy, [1,1,1,1,1]);
     }
-    document.getElementById('wlabel').innerHTML=`<span class="hl">${word.toUpperCase()}</span>`;
-    document.getElementById('wlabel').classList.remove('fade');
-  },130);
+
+    return `
+        <g class="${anim ? 'anim-active' : ''}">
+            <rect x="105" y="175" width="90" height="105" rx="12" fill="var(--SH)"/>
+            <rect x="136" y="155" width="28" height="28" rx="6" fill="var(--S)"/>
+            <ellipse cx="150" cy="120" rx="42" ry="46" fill="var(--S)" stroke="var(--OT)"/>
+            <circle cx="135" cy="115" r="3" fill="#000"/><circle cx="165" cy="115" r="3" fill="#000"/>
+            ${face === 'happy' ? `<path d="M138 140 Q150 150 162 140" stroke="var(--OT)" fill="none" stroke-width="2"/>` : `<line x1="140" y1="142" x2="160" y2="142" stroke="var(--OT)" stroke-width="2"/>`}
+            <path d="M105 185 L70 250" stroke="var(--SH)" stroke-width="20" stroke-linecap="round"/>
+            <path d="M195 185 L${hx} ${hy}" stroke="var(--SH)" stroke-width="20" stroke-linecap="round"/>
+            ${handContent}
+        </g>`;
 }
 
-function fingerSpell(word){
-  const letters=[...word].filter(c=>ABC[c]);
-  if(!letters.length){avS().innerHTML=poseNeutral();return;}
-  document.getElementById('lgrid').innerHTML=letters.map((l,i)=>`<div class="lc" id="lc${i}">${l.toUpperCase()}</div>`).join('');
-  let i=0;
-  const spd=Math.max(140,parseInt(document.getElementById('speed').value)*0.30);
-  function next(){
-    if(i>0)document.getElementById(`lc${i-1}`)?.classList.remove('on');
-    if(i>=letters.length){avS().innerHTML=poseNeutral();return;}
-    document.getElementById(`lc${i}`)?.classList.add('on');
-    avS().innerHTML=poseLetter(ABC[letters[i].toLowerCase()]||[1,1,1,1,1]);
-    i++;setTimeout(next,spd);
-  }
-  next();
+function drawHand(cx, cy, f) {
+    let res = `<ellipse cx="${cx}" cy="${cy}" rx="18" ry="14" fill="var(--S)" stroke="var(--OT)"/>`;
+    const offsets = [{x:-15, y:-25}, {x:-5, y:-28}, {x:5, y:-28}, {x:15, y:-25}, {x:22, y:-15}];
+    offsets.forEach((o, i) => { if(f[i]) res += `<rect x="${cx+o.x}" y="${cy+o.y}" width="9" height="20" rx="4" fill="var(--S)" stroke="var(--OT)"/>`; });
+    return res;
 }
 
-function enqueue(text){
-  text.split(/\s+/).filter(w=>w.length>0).forEach(w=>queue.push(w));
-  renderQ();if(!animating)processQ();
+let queue = [];
+let isProcessing = false;
+
+async function processQueue() {
+    if (queue.length === 0) { isProcessing = false; return; }
+    isProcessing = true;
+    let word = queue.shift().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    // Soporte para frases compuestas como "derecho de peticion"
+    if(word === "derecho" && queue[0] === "de" && queue[1] === "peticion") {
+        word = "derecho de peticion";
+        queue.shift(); queue.shift();
+    }
+
+    wlabel.textContent = word.toUpperCase();
+    
+    if (POSES[word] || POSES[word.split(' ')[0]]) {
+        mainDisplay.className = "display-area mode-avatar";
+        modeTag.textContent = "Seña Especializada";
+        svg.innerHTML = POSES[word] ? POSES[word]() : POSES[word.split(' ')[0]]();
+        await new Promise(r => setTimeout(r, 1300));
+    } else {
+        mainDisplay.className = "display-area mode-hand";
+        modeTag.textContent = "Deletreando...";
+        for (let char of word) {
+            if (ABC[char]) {
+                svg.innerHTML = drawHand(150, 200, ABC[char]);
+                await new Promise(r => setTimeout(r, 450));
+            }
+        }
+    }
+    processQueue();
 }
 
-function processQ(){
-  if(!queue.length){animating=false;return;}
-  animating=true;
-  const w=queue.shift();
-  const raw=w.toLowerCase().replace(/[^a-záéíóúñ]/g,'');
-  if(SKIP.has(raw)){renderQ();setTimeout(processQ,60);return;}
-  showSign(w);renderQ();
-  const spd=parseInt(document.getElementById('speed').value);
-  const dur=SIGNS[raw]?spd:Math.max(spd*(raw.length*0.30),380);
-  setTimeout(processQ,Math.max(dur,380));
+let recognition;
+function startRecognition() {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new Speech();
+    recognition.lang = 'es-CO';
+    recognition.continuous = true;
+    recognition.onstart = () => {
+        document.getElementById('status').className = 'active-mic';
+        document.getElementById('stxt').textContent = 'Escuchando...';
+        document.getElementById('btnStart').style.display = 'none';
+        document.getElementById('btnStop').style.display = 'block';
+    };
+    recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        const words = transcript.trim().split(' ');
+        queue.push(...words);
+        if (!isProcessing) processQueue();
+        document.getElementById('tbox').innerHTML += `<span>${transcript} </span>`;
+    };
+    recognition.start();
 }
 
-function renderQ(){
-  document.getElementById('wq').innerHTML=queue.slice(0,16).map((w,i)=>`<span class="qw ${i===0?'cur':''}">${w}</span>`).join('');
+function stopRecognition() {
+    recognition.stop();
+    document.getElementById('status').className = '';
+    document.getElementById('stxt').textContent = 'Micrófono Apagado';
+    document.getElementById('btnStart').style.display = 'block';
+    document.getElementById('btnStop').style.display = 'none';
 }
 
-/* ─── VOZ ─── */
-let rec=null,running=false,fullTxt='';
-function startL(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Usa Chrome o Edge.');return;}
-  rec=new SR();rec.lang=document.getElementById('langSel').value;
-  rec.continuous=true;rec.interimResults=true;
-  rec.onstart=()=>{running=true;document.getElementById('sdot').className='sdot pulse';document.getElementById('stxt').textContent='Escuchando...';document.getElementById('btnS').style.display='none';document.getElementById('btnX').style.display='flex';};
-  rec.onresult=e=>{
-    let interim='',final='';
-    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;e.results[i].isFinal?(final+=t):(interim+=t);}
-    if(final){fullTxt+=final+' ';updT(false,'');enqueue(final);}else{updT(true,interim);}
-  };
-  rec.onerror=e=>{if(e.error==='no-speech')return;document.getElementById('stxt').textContent='Error: '+e.error;if(e.error==='not-allowed')alert('Permiso denegado. En OBS: clic derecho en Browser Source → Interact → acepta el micrófono.');};
-  rec.onend=()=>{if(running)rec.start();};
-  rec.start();
-}
-function stopL(){running=false;rec?.stop();document.getElementById('sdot').className='sdot on';document.getElementById('stxt').textContent='Detenido';document.getElementById('btnS').style.display='flex';document.getElementById('btnX').style.display='none';}
-function updT(isInt,txt){const b=document.getElementById('tbox');b.innerHTML=fullTxt+(isInt?`<span class="live">${txt}</span>`:'');b.scrollTop=b.scrollHeight;}
-
-/* ─── UTILS ─── */
-const TEST=['hola','gracias','amor','ayuda','sí','no','bien','agua','comer','yo','tú','dormir'];
-let ti=0;
-function testCycle(){enqueue(TEST[ti++%TEST.length]);}
-function toggleOverlay(){document.body.classList.toggle('overlay');}
-document.getElementById('ushow').textContent=window.location.href.split('?')[0];
-if(new URLSearchParams(window.location.search).get('overlay')==='1')document.body.classList.add('overlay');
-avS().innerHTML=poseNeutral();
+function toggleOverlay() { document.body.classList.toggle('overlay'); }
+svg.innerHTML = avatarPose('neutral', 70, 250, false, [0,0,0,0,0]);
 </script>
 </body>
 </html>
